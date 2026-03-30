@@ -1,0 +1,147 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+}
+
+.menu-item a {
+  text-decoration: none;
+  color: var(--color-text-dark-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.menu-item a:hover {
+  background-color: var(--grey-100);
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  border-radius: 8px;
+  font-family: 'Lato', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-login {
+  background: var(--color-primary);
+  color: var(--color-text-light-primary);
+  border: 1.5px solid var(--grey-300);
+}
+
+.btn-login:hover {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary-400);
+}
+
+.btn-register {
+  background: var(--color-primary-background);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-register:hover {
+  box-shadow: 0 4px 12px rgba(255, 189, 58, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-register:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .toggle {
+    display: block;
+  }
+
+  .menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #ffffff;
+    flex-direction: column;
+    width: 220px;
+    padding: 16px;
+    gap: 12px;
+    display: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 12px 12px;
+  }
+
+  .menu.active {
+    display: flex;
+    animation: slideIn 0.25s ease forwards;
+  }
+
+  .toggle {
+    transition: transform 0.2s ease;
+  }
+
+  .toggle.open {
+    transform: rotate(90deg);
+  }
+
+  .menu-item {
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .menu-item a {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

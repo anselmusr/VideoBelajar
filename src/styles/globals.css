@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700;900&display=swap');
+
+/* Color Palette Variables */
+:root {
+	/* Main */
+	--color-primary: #3ECF4C;
+	--color-primary-100: #E2FCD9CC;
+	--color-primary-200: #C0FAB4;
+	--color-primary-300: #94F08B;
+	--color-primary-400: #6BE26B;
+	--color-secondary: #FFBD3A;
+	--color-secondary-100: #FFF7D7CC;
+	--color-secondary-200: #FFECB0;
+	--color-secondary-300: #FFDF88;
+	--color-secondary-400: #FFD26B;
+	--color-tertiary: #F64920;
+	--color-tertiary-100: #FEE8D2CC;
+	--color-tertiary-200: #FECAA5;
+	--color-tertiary-300: #FCA578;
+	--color-tertiary-400: #F98256;
+
+	/* Text (Dark) */
+	--color-text-dark-primary: #222325;
+	--color-text-dark-secondary: #333333AD;
+	--color-text-dark-disabled: #3A354161;
+
+	/* Text (Light) */
+	--color-text-light-primary: #FFFFFF;
+	--color-text-light-secondary: #C1C2C4;
+	--color-text-light-disabled: #9D9EA1;
+
+	/* Other */
+	--color-primary-background: #FFFFFF;
+	--color-base-background: #F4F5FA;
+	--color-secondary-background: #F9FAFC;
+	--color-border: #3A35411F;
+
+	/* Info */
+	--color-info-pressed: #044AA2;
+	--color-info-hover: #0663C2;
+	--color-info-default: #0980E2;
+	--color-info-background: #EBF9FE;
+
+	/* Success */
+	--color-success-pressed: #1C9675;
+	--color-success-hover: #28B380;
+	--color-success-default: #38D189;
+	--color-success-background: #E0FDDF;
+
+	/* Warning */
+	--color-warning-pressed: #B5A40D;
+	--color-warning-hover: #D8C613;
+	--color-warning-default: #FCE91B;
+	--color-warning-background: #FCF8CA;
+
+	/* Error */
+	--color-error-pressed: #B72315;
+	--color-error-hover: #DB3D1F;
+	--color-error-default: #FF5C2B;
+	--color-error-background: #FCE3D1;
+
+	/* Gradients */
+	--gradient-info: linear-gradient(286.17deg, #004CE8 0%, #6F9EFF 100%);
+	--gradient-success: linear-gradient(286.17deg, #00C247 0%, #73FFA6 100%);
+	--gradient-warning: linear-gradient(286.17deg, #FFE16A 0%, rgba(255, 229, 128, 0.21) 100%);
+	--gradient-error: linear-gradient(286.17deg, #FF3333 36.98%, #FF8A9B 100%);
+
+	/* Greyscale */
+	--grey-900: #212121;
+	--grey-800: #424242;
+	--grey-700: #616161;
+	--grey-600: #757575;
+	--grey-500: #9E9E9E;
+	--grey-400: #BDBDBD;
+	--grey-300: #E0E0E0;
+	--grey-200: #EEEEEE;
+	--grey-100: #F5F5F5;
+	--grey-50: #FAFAFA;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Lato', Arial, Helvetica, sans-serif;
+	background-color: var(--color-base-background);
+	color: var(--color-text-dark-primary);
+}
