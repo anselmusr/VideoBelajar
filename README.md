@@ -1,11 +1,24 @@
-# React + Vite
+# Video Belajar Landing Page
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a landing page builder for **Video Belajar** (learning videos). It uses React + Vite and is configured to create responsive navigation, custom fonts, color design system, and favicon branding.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Mobile-friendly navbar with hamburger menu
+- Font Lato imported from Google Fonts
+- Color palette variables in `src/styles/globals.css`
+- Favicon configured with `/assets/favicon-videobelajar.ico`
+- `public/assets/logo.webp` as app logo
+
+## Setup
+
+1. `npm install`
+2. `npm run dev`
+
+## Production Build
+
+- `npm run build`
+- `npm run preview`
 
 ## React Compiler
 
