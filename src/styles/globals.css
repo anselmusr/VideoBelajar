@@ -85,3 +85,27 @@ body {
 	background-color: var(--color-secondary-100);
 	color: var(--color-text-dark-primary);
 }
+
+.page-container {
+	width: min(1200px, 100% - 40px);
+	margin-inline: auto;
+}
+
+.section-wrap {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.section-title {
+	margin: 0;
+	font-size: clamp(1.9rem, 4vw, 2.6rem);
+	line-height: 1.2;
+	color: var(--color-text-dark-primary);
+}
+
+.section-subtitle {
+	margin: 8px 0 0;
+	font-size: 1rem;
+	line-height: 1.5;
+	color: var(--color-text-dark-secondary);
+}
