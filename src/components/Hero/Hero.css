@@ -20,8 +20,8 @@
 
 .hero-content {
   position: relative;
-  width: min(1320px, 96vw);
-  max-width: 1320px;
+  width: min(1200px, 96vw);
+  max-width: 1200px;
   padding: 0 20px;
   z-index: 1;
   display: flex;
