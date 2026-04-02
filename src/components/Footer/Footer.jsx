@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { createElement, useState } from 'react'
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaXTwitter } from 'react-icons/fa6'
 import './Footer.css'
 
 const footerLinks = {
@@ -11,6 +12,13 @@ const footerSections = [
   { id: 'kategori', title: 'Kategori', items: footerLinks.kategori },
   { id: 'perusahaan', title: 'Perusahaan', items: footerLinks.perusahaan },
   { id: 'komunitas', title: 'Komunitas', items: footerLinks.komunitas },
+]
+
+const socialLinks = [
+  { id: 'linkedin', label: 'LinkedIn', href: '#', icon: FaLinkedinIn },
+  { id: 'facebook', label: 'Facebook', href: '#', icon: FaFacebookF },
+  { id: 'instagram', label: 'Instagram', href: '#', icon: FaInstagram },
+  { id: 'twitter', label: 'Twitter / X', href: '#', icon: FaXTwitter },
 ]
 
 function Footer() {
@@ -61,10 +69,11 @@ function Footer() {
       <div className="page-container footer-bottom">
         <p>&copy; {new Date().getFullYear()} Gerobak Sayur All Rights Reserved.</p>
         <div className="footer-social" aria-label="Media sosial">
-          <a href="#" aria-label="LinkedIn">in</a>
-          <a href="#" aria-label="Facebook">f</a>
-          <a href="#" aria-label="Instagram">ig</a>
-          <a href="#" aria-label="Twitter">t</a>
+          {socialLinks.map(({ id, label, href, icon }) => (
+            <a key={id} href={href} aria-label={label}>
+              {createElement(icon, { 'aria-hidden': true })}
+            </a>
+          ))}
         </div>
       </div>
     </footer>

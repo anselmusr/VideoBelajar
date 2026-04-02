@@ -114,6 +114,11 @@
   line-height: 1;
 }
 
+.footer-social a svg {
+  width: 16px;
+  height: 16px;
+}
+
 @media (max-width: 1024px) {
   .footer-top {
     grid-template-columns: 1fr;

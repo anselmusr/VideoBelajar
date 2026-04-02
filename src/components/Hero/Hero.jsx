@@ -13,7 +13,7 @@ function Hero() {
             Temukan ilmu baru yang menarik dan mendalam melalui koleksi video pembelajaran berkualitas tinggi. Tidak hanya itu, Anda juga dapat berpartisipasi dalam latihan interaktif yang akan meningkatkan pemahaman Anda.
           </p>
           <div className="hero-actions">
-            <a href="#featured-collection" className="button primary">
+            <a href="/#kategori" className="button primary">
               Temukan Video Course untuk Dipelajari!
             </a>
           </div>

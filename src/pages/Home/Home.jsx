@@ -1,15 +1,30 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import './Home.css'
-import Navbar from '../../components/Navbar/Navbar.jsx'
+import Hero from '../../components/Hero/Hero.jsx'
+import Features from '../../components/Features/Features.jsx'
+import CallToAction from '../../components/CallToAction/CallToAction.jsx'
 
 function Home() {
-    const [count, setCount] = useState(0)
+    const location = useLocation()
+
+    useEffect(() => {
+        if (location.hash === '#kategori') {
+            const target = document.getElementById('kategori')
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+        }
+    }, [location.hash])
 
     return (
-        <>
-            <Navbar />
-            <h1>Home</h1>
-        </>
+        <main>
+            <Hero />
+            <section id="kategori" className="kategori-anchor">
+                <Features />
+            </section>
+            <CallToAction />
+        </main>
     )
 }
 

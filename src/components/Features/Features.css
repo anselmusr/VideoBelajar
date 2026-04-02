@@ -236,9 +236,17 @@
         margin-bottom: 12px;
     }
 
-    .section-title,
+    .section-title {
+        display: block;
+        font-size: 1.4rem;
+        line-height: 1.25;
+    }
+
     .section-subtitle {
-        display: none;
+        display: block;
+        margin-top: 6px;
+        font-size: 0.9rem;
+        line-height: 1.45;
     }
 
     .category-tabs {

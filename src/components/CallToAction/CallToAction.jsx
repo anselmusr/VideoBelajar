@@ -1,6 +1,11 @@
 import './CallToAction.css'
 
 function CallToAction() {
+  const handleNewsletterSubmit = (event) => {
+    event.preventDefault()
+    window.alert('Fitur belum bisa digunakan saat ini.')
+  }
+
   return (
     <section className="section-wrap newsletter-cta" aria-label="Newsletter">
       <div className="page-container">
@@ -16,7 +21,7 @@ function CallToAction() {
             <form
               id="newsletter-form"
               className="newsletter-form"
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={handleNewsletterSubmit}
             >
               <input
                 type="email"

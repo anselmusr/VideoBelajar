@@ -1,29 +1,84 @@
-# Video Belajar Landing Page
+# Video Belajar
 
-This project is a landing page builder for **Video Belajar** (learning videos). It uses React + Vite and is configured to create responsive navigation, custom fonts, color design system, and favicon branding.
+Frontend project untuk landing page dan halaman autentikasi Video Belajar, dibangun dengan React + Vite.
 
-## Features
+VideoBelajar adalah platform pembelajaran video berbasis web yang memberi pengguna akses ke beragam kursus dan tutorial berbasis video. Pengguna dapat belajar dengan kecepatan dan jadwal sendiri melalui materi yang terstruktur dan mudah diakses.
 
-- Mobile-friendly navbar with hamburger menu
-- Font Lato imported from Google Fonts
-- Color palette variables in `src/styles/globals.css`
-- Favicon configured with `/assets/favicon-videobelajar.ico`
-- `public/assets/logo.webp` as app logo
+## Tech Stack
 
-## Setup
+- React 19
+- Vite
+- React Router DOM
+- React Icons
+- ESLint
 
-1. `npm install`
-2. `npm run dev`
+## Fitur yang Sudah Tersedia
 
-## Production Build
+- Landing page responsif dengan section Hero, Features (kategori course), dan Newsletter CTA.
+- Routing aplikasi:
+	- `/` untuk Home
+	- `/login` untuk Login
+	- `/register` untuk Register
+	- `*` diarahkan kembali ke `/`
+- Navigasi hash ke kategori (`/#kategori`) dari Navbar dan Hero CTA.
+- Scroll otomatis ke atas saat pindah route agar halaman Login/Register tidak terbuka di posisi bawah.
+- Form Login:
+	- Toggle show/hide password
+	- Placeholder aksi submit, lupa password, dan login Google
+- Form Register:
+	- Toggle show/hide password dan konfirmasi password
+	- Validasi required saat submit
+	- Validasi kecocokan konfirmasi password
+	- Country code picker (REST Countries API + fallback lokal)
+	- Placeholder aksi daftar dengan Google
+- Footer social menggunakan React Icons.
+- Newsletter CTA dengan placeholder submit action.
+- Design tokens warna terpusat di `src/styles/globals.css`.
 
-- `npm run build`
-- `npm run preview`
+## Menjalankan Project
 
-## React Compiler
+1. Install dependencies:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+2. Jalankan development server:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run dev
+```
+
+3. Jalankan pengecekan lint:
+
+```bash
+npm run lint
+```
+
+4. Build production:
+
+```bash
+npm run build
+```
+
+5. Preview hasil build:
+
+```bash
+npm run preview
+```
+
+## Struktur Folder Ringkas
+
+- `src/App.jsx` - Shell layout utama (Navbar, Routes, Footer)
+- `src/pages/Home/Home.jsx` - Halaman Home
+- `src/pages/Login/Login.jsx` - Halaman Login
+- `src/pages/Register/Register.jsx` - Halaman Register
+- `src/components/` - Komponen UI utama (Navbar, Hero, Features, CallToAction, Footer)
+- `src/styles/globals.css` - Global styles dan color variables
+- `src/utils/courseCatalog.js` - Data kategori dan katalog course
+- `public/assets/favicon-videobelajar.ico` - Favicon aplikasi
+
+## Catatan
+
+- Beberapa aksi masih bersifat placeholder (menggunakan alert) karena belum terhubung ke backend autentikasi/newsletter.
+- Jika favicon belum berubah di browser, lakukan hard refresh atau buka lewat incognito untuk menghindari cache.
