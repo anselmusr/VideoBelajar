@@ -5,6 +5,7 @@ import Footer from './components/Footer/Footer.jsx'
 import Home from './pages/Home/Home.jsx'
 import Login from './pages/Login/Login.jsx'
 import Register from './pages/Register/Register.jsx'
+import { footerContent, navbarContent } from './utils/siteContent.js'
 import './App.css'
 
 function ScrollToTopOnPathChange() {
@@ -20,7 +21,11 @@ function ScrollToTopOnPathChange() {
 function App() {
   return (
     <>
-      <Navbar />
+      <Navbar
+        logo={navbarContent.logo}
+        links={navbarContent.links}
+        actions={navbarContent.actions}
+      />
       <ScrollToTopOnPathChange />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -28,7 +33,12 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <Footer />
+      <Footer
+        brand={footerContent.brand}
+        sections={footerContent.sections}
+        socialLinks={footerContent.socialLinks}
+        copyright={footerContent.copyright}
+      />
     </>
   )
 }

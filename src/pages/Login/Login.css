@@ -13,7 +13,7 @@
 }
 
 .login-card {
-  width: 590px;
+  width: min(590px, 100%);
   height: auto;
   display: flex;
   flex-direction: column;
@@ -190,5 +190,6 @@
 
   .login-card {
     width: 100%;
+    padding: 24px 18px;
   }
 }

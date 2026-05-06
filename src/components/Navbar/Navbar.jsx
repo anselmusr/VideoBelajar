@@ -3,37 +3,46 @@ import { Link } from 'react-router-dom'
 import { FiMenu, FiX } from 'react-icons/fi'
 import './Navbar.css'
 
-function Navbar() {
+function Navbar({ logo, links = [], actions = [] }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const closeMenu = () => setIsOpen(false)
 
   return (
     <nav className="navbar">
-      <Link to="/" className="logo" aria-label="Video Belajar Home" onClick={closeMenu}>
-        <img src="/assets/logo.webp" alt="Video Belajar" />
+      <Link to="/" className="logo" aria-label={logo?.ariaLabel} onClick={closeMenu}>
+        <img src={logo?.src} alt={logo?.alt} />
       </Link>
 
       <button
+        type="button"
         className={`toggle ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle menu"
+        aria-expanded={isOpen}
+        aria-controls="primary-navigation"
       >
         {isOpen ? <FiX aria-hidden="true" /> : <FiMenu aria-hidden="true" />}
       </button>
 
-      <ul className={`menu ${isOpen ? "active" : ""}`}>
-        <li className="menu-item">
-          <Link to="/#kategori" onClick={closeMenu}>Kategori</Link>
-        </li>
-        <li className="menu-item">
-          <Link to="/login" className="btn btn-login nav-link-btn" onClick={closeMenu}>Login</Link>
-        </li>
-        <li className="menu-item">
-          <Link to="/register" className="btn btn-register nav-link-btn" onClick={closeMenu}>
-            Register
-          </Link>
-        </li>
+      <ul id="primary-navigation" className={`menu ${isOpen ? "active" : ""}`}>
+        {links.map((item) => (
+          <li key={item.id} className="menu-item">
+            <Link to={item.to} onClick={closeMenu}>{item.label}</Link>
+          </li>
+        ))}
+
+        {actions.map((item) => (
+          <li key={item.id} className="menu-item">
+            <Link
+              to={item.to}
+              className={`btn btn-${item.variant} nav-link-btn`}
+              onClick={closeMenu}
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
       </ul>
 
     </nav>

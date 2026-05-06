@@ -58,6 +58,10 @@
   text-align: left;
 }
 
+.footer-toggle-icon {
+  display: none;
+}
+
 .footer-section-toggle:focus-visible {
   outline: 2px solid rgba(34, 35, 37, 0.28);
   outline-offset: 2px;
@@ -75,6 +79,15 @@
 .footer-links li {
   font-size: 14px;
   color: rgba(51, 51, 51, 0.7);
+}
+
+.footer-links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--color-text-dark-primary);
 }
 
 .footer-bottom {
@@ -185,10 +198,10 @@
     cursor: pointer;
   }
 
-  .footer-section-toggle::after {
-    content: '›';
-    font-size: 1.15em;
-    line-height: 1;
+  .footer-toggle-icon {
+    display: block;
+    width: 18px;
+    height: 18px;
     color: rgba(34, 35, 37, 0.5);
     transition: transform 0.2s ease;
   }
@@ -203,7 +216,7 @@
     margin-top: 10px;
   }
 
-  .footer-section-toggle[aria-expanded='true']::after {
+  .footer-section-toggle[aria-expanded='true'] .footer-toggle-icon {
     transform: rotate(90deg);
   }
 

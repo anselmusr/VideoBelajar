@@ -4,6 +4,12 @@ import './Home.css'
 import Hero from '../../components/Hero/Hero.jsx'
 import Features from '../../components/Features/Features.jsx'
 import CallToAction from '../../components/CallToAction/CallToAction.jsx'
+import { courseCatalog, courseCategories } from '../../utils/courseCatalog.js'
+import {
+    featuredCoursesContent,
+    heroContent,
+    newsletterContent,
+} from '../../utils/siteContent.js'
 
 function Home() {
     const location = useLocation()
@@ -19,11 +25,16 @@ function Home() {
 
     return (
         <main>
-            <Hero />
+            <Hero {...heroContent} />
             <section id="kategori" className="kategori-anchor">
-                <Features />
+                <Features
+                    title={featuredCoursesContent.title}
+                    subtitle={featuredCoursesContent.subtitle}
+                    categories={courseCategories}
+                    courses={courseCatalog}
+                />
             </section>
-            <CallToAction />
+            <CallToAction {...newsletterContent} />
         </main>
     )
 }

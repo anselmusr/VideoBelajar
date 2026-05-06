@@ -25,6 +25,7 @@
   display: none;
   background: none;
   border: none;
+  color: var(--color-text-dark-primary);
   font-size: 1.4rem;
   cursor: pointer;
 }
@@ -124,7 +125,7 @@
     right: 0;
     background: var(--color-primary-background);
     flex-direction: column;
-    width: 220px;
+    width: min(260px, calc(100vw - 24px));
     padding: 16px;
     gap: 12px;
     display: none;

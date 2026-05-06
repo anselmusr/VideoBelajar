@@ -13,8 +13,8 @@
 }
 
 .register-card {
-  width: 590px;
-  height: 893px;
+  width: min(590px, 100%);
+  min-height: 893px;
   display: grid;
   grid-template-rows: auto auto 1fr;
   align-content: start;
@@ -351,6 +351,8 @@
 
   .register-card {
     width: 100%;
+    min-height: auto;
+    padding: 24px 18px;
   }
 
   .country-menu {

@@ -1,41 +1,56 @@
 import './CallToAction.css'
 
-function CallToAction() {
-  const handleNewsletterSubmit = (event) => {
+function CallToAction({
+  ariaLabel = 'Newsletter',
+  label,
+  title,
+  description,
+  emailLabel = 'Email',
+  placeholder,
+  buttonLabel,
+  unavailableMessage = 'Fitur belum bisa digunakan saat ini.',
+  onSubmit,
+}) {
+  const formId = 'newsletter-form'
+
+  const handleSubmit = (event) => {
     event.preventDefault()
-    window.alert('Fitur belum bisa digunakan saat ini.')
+
+    if (onSubmit) {
+      onSubmit(event)
+      return
+    }
+
+    window.alert(unavailableMessage)
   }
 
   return (
-    <section className="section-wrap newsletter-cta" aria-label="Newsletter">
+    <section className="section-wrap newsletter-cta" aria-label={ariaLabel}>
       <div className="page-container">
         <div className="newsletter-banner">
           <div className="newsletter-content">
-            <span className="newsletter-label">NEWSLETTER</span>
-            <h2>Mau Belajar Lebih Banyak?</h2>
-            <p>
-              Daftarkan dirimu untuk mendapatkan informasi terbaru dan penawaran
-              spesial dari program-program terbaik hariesok.id
-            </p>
+            <span className="newsletter-label">{label}</span>
+            <h2>{title}</h2>
+            <p>{description}</p>
 
             <form
-              id="newsletter-form"
+              id={formId}
               className="newsletter-form"
-              onSubmit={handleNewsletterSubmit}
+              onSubmit={handleSubmit}
             >
               <input
                 type="email"
                 name="email"
-                placeholder="Masukkan Emailmu"
+                placeholder={placeholder}
                 autoComplete="email"
-                aria-label="Email"
+                aria-label={emailLabel}
                 required
               />
-              <button type="submit">Subscribe</button>
+              <button type="submit">{buttonLabel}</button>
             </form>
 
-            <button type="submit" form="newsletter-form" className="newsletter-submit-mobile">
-              Subscribe
+            <button type="submit" form={formId} className="newsletter-submit-mobile">
+              {buttonLabel}
             </button>
           </div>
         </div>
