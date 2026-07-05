@@ -35,7 +35,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -48,7 +47,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -61,7 +59,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -74,7 +71,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -87,7 +83,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -100,7 +95,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -113,7 +107,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -126,7 +119,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1542382257-80dedb725088?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -139,7 +131,6 @@ const baseCourseCatalog = [
     instructor: 'Jenna Ortega',
     role: 'Senior Accountant',
     company: 'di Gojek',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
     rating: 3.5,
     reviews: 86,
     price: 300000,
@@ -148,6 +139,16 @@ const baseCourseCatalog = [
 
 export const courseCatalog = baseCourseCatalog.map((course, index) => ({
   ...course,
-  imageUrl: kelasImages[index] ?? kelasImages[0],
-  avatarUrl: avatarImages[index] ?? avatarImages[0],
+  imageId: index + 1,
+  avatarId: index + 1,
 }))
+
+export function resolveCourseAssets(course) {
+  const imageUrl = kelasImages[(course.imageId ?? 1) - 1] ?? kelasImages[0]
+  const avatarUrl = avatarImages[(course.avatarId ?? 1) - 1] ?? avatarImages[0]
+  return { ...course, imageUrl, avatarUrl }
+}
+
+export const courseImageOptions = kelasImages.map((src, index) => ({ id: index + 1, src }))
+
+export const courseAvatarOptions = avatarImages.map((src, index) => ({ id: index + 1, src }))

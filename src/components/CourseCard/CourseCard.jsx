@@ -1,4 +1,5 @@
 import { FaRegStar, FaStar } from 'react-icons/fa'
+import { resolveCourseAssets } from '../../utils/courseCatalog.js'
 import './CourseCard.css'
 
 function formatCompactRupiah(value) {
@@ -28,31 +29,32 @@ function CourseRating({ rating, reviews, className = '' }) {
 }
 
 function CourseCard({ course, priceFormatter = formatCompactRupiah }) {
-  const instructorMeta = [course.role, course.company].filter(Boolean).join(' ')
+  const resolved = resolveCourseAssets(course)
+  const instructorMeta = [resolved.role, resolved.company].filter(Boolean).join(' ')
 
   return (
-    <article className="course-card" aria-label={course.title}>
+    <article className="course-card" aria-label={resolved.title}>
       <img
         className="course-card-image"
-        src={course.imageUrl}
-        alt={course.title}
+        src={resolved.imageUrl}
+        alt={resolved.title}
         loading="lazy"
       />
 
       <CourseRating
         className="mobile-rating"
-        rating={course.rating}
-        reviews={course.reviews}
+        rating={resolved.rating}
+        reviews={resolved.reviews}
       />
 
       <div className="course-card-body">
-        <h3>{course.title}</h3>
-        <p>{course.description}</p>
+        <h3>{resolved.title}</h3>
+        <p>{resolved.description}</p>
 
         <div className="course-card-instructor">
-          <img src={course.avatarUrl} alt={course.instructor} loading="lazy" />
+          <img src={resolved.avatarUrl} alt={resolved.instructor} loading="lazy" />
           <div>
-            <strong>{course.instructor}</strong>
+            <strong>{resolved.instructor}</strong>
             <span className="course-meta">{instructorMeta}</span>
           </div>
         </div>
@@ -60,10 +62,10 @@ function CourseCard({ course, priceFormatter = formatCompactRupiah }) {
         <div className="course-card-footer">
           <CourseRating
             className="rating-block"
-            rating={course.rating}
-            reviews={course.reviews}
+            rating={resolved.rating}
+            reviews={resolved.reviews}
           />
-          <strong className="price">{priceFormatter(course.price)}</strong>
+          <strong className="price">{priceFormatter(resolved.price)}</strong>
         </div>
       </div>
     </article>
