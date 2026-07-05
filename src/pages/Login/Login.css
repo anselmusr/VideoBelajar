@@ -181,6 +181,12 @@
   height: 100%;
 }
 
+.login-error {
+  margin: 4px 0 0;
+  color: var(--color-error-hover);
+  font-size: 13px;
+}
+
 @media (max-width: 640px) {
   .login-page {
     min-height: auto;

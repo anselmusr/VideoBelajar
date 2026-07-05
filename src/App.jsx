@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import Navbar from './components/Navbar/Navbar.jsx'
@@ -9,6 +9,16 @@ import Register from './pages/Register/Register.jsx'
 import { useCourses } from './hooks/useCourses.js'
 import { footerContent, navbarContent } from './utils/siteContent.js'
 import './App.css'
+
+const ADMIN_SESSION_KEY = 'videobelajar.adminSession'
+
+function readAdminSession() {
+  try {
+    return window.localStorage.getItem(ADMIN_SESSION_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
 
 function ScrollToTopOnPathChange() {
   const { pathname } = useLocation()
@@ -22,6 +32,25 @@ function ScrollToTopOnPathChange() {
 
 function App() {
   const { courses } = useCourses()
+  const [isAdmin, setIsAdmin] = useState(readAdminSession)
+
+  const handleAdminLogin = () => {
+    setIsAdmin(true)
+    try {
+      window.localStorage.setItem(ADMIN_SESSION_KEY, 'true')
+    } catch {
+      // storage tidak tersedia — sesi hanya bertahan selama tab terbuka
+    }
+  }
+
+  const handleLogout = () => {
+    setIsAdmin(false)
+    try {
+      window.localStorage.removeItem(ADMIN_SESSION_KEY)
+    } catch {
+      // storage tidak tersedia — tidak ada yang perlu dihapus
+    }
+  }
 
   return (
     <>
@@ -29,11 +58,13 @@ function App() {
         logo={navbarContent.logo}
         links={navbarContent.links}
         actions={navbarContent.actions}
+        isAdmin={isAdmin}
+        onLogout={handleLogout}
       />
       <ScrollToTopOnPathChange />
       <Routes>
         <Route path="/" element={<Home courses={courses} />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login onAdminLogin={handleAdminLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

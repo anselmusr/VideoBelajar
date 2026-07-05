@@ -109,6 +109,11 @@
   background: #dfe5e9;
 }
 
+.nav-admin-btn {
+  width: auto;
+  padding: 0 16px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .navbar {
