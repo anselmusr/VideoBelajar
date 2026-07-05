@@ -4,14 +4,14 @@ import './Home.css'
 import Hero from '../../components/Hero/Hero.jsx'
 import Features from '../../components/Features/Features.jsx'
 import CallToAction from '../../components/CallToAction/CallToAction.jsx'
-import { courseCatalog, courseCategories } from '../../utils/courseCatalog.js'
+import { courseCategories } from '../../utils/courseCatalog.js'
 import {
     featuredCoursesContent,
     heroContent,
     newsletterContent,
 } from '../../utils/siteContent.js'
 
-function Home() {
+function Home({ courses }) {
     const location = useLocation()
 
     useEffect(() => {
@@ -31,7 +31,7 @@ function Home() {
                     title={featuredCoursesContent.title}
                     subtitle={featuredCoursesContent.subtitle}
                     categories={courseCategories}
-                    courses={courseCatalog}
+                    courses={courses}
                 />
             </section>
             <CallToAction {...newsletterContent} />
