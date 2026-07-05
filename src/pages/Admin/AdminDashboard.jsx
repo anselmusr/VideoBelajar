@@ -104,6 +104,7 @@ function AdminDashboard({ courses, addCourse, updateCourse, deleteCourse, restor
             <input
               type="search"
               placeholder="Cari judul kelas..."
+              aria-label="Cari judul kelas"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
             />
