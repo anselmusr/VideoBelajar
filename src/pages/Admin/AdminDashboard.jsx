@@ -24,12 +24,13 @@ function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [isRestoring, setIsRestoring] = useState(false)
 
   useEffect(() => {
-    if (!lastDeleted) return undefined
+    if (!lastDeleted || isRestoring) return undefined
     const timer = window.setTimeout(() => setLastDeleted(null), 5000)
     return () => window.clearTimeout(timer)
-  }, [lastDeleted])
+  }, [lastDeleted, isRestoring])
 
   const totalCourses = courses.length
   const averageRating = totalCourses
@@ -94,12 +95,14 @@ function AdminDashboard() {
   }
 
   const handleUndo = async () => {
-    if (!lastDeleted) return
+    if (!lastDeleted || isRestoring) return
+    setIsRestoring(true)
     try {
       await dispatch(restoreCourse(lastDeleted)).unwrap()
     } catch {
       // pesan error sudah tersimpan di slice
     } finally {
+      setIsRestoring(false)
       setLastDeleted(null)
     }
   }
@@ -219,7 +222,9 @@ function AdminDashboard() {
       {lastDeleted && (
         <div className="admin-toast" role="status">
           <span>Kelas &ldquo;{lastDeleted.title}&rdquo; dihapus.</span>
-          <button type="button" onClick={handleUndo}>Undo</button>
+          <button type="button" onClick={handleUndo} disabled={isRestoring}>
+            {isRestoring ? 'Mengembalikan...' : 'Undo'}
+          </button>
         </div>
       )}
     </main>
