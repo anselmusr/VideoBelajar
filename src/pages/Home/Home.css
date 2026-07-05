@@ -1,3 +1,43 @@
 .kategori-anchor {
 	scroll-margin-top: 84px;
 }
+
+.courses-loading,
+.courses-error {
+    padding: 56px 0 72px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--color-text-dark-secondary);
+}
+
+.courses-error {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.courses-error button {
+    border: none;
+    border-radius: 8px;
+    background: var(--color-primary);
+    color: var(--color-text-light-primary);
+    font: inherit;
+    font-weight: 700;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.courses-spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid var(--grey-300);
+    border-top-color: var(--color-primary);
+    animation: coursesSpin 0.8s linear infinite;
+}
+
+@keyframes coursesSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
