@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
-import { FiSearch, FiTrash2 } from 'react-icons/fi'
+import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import CourseCard from '../../components/CourseCard/CourseCard.jsx'
 import { courseCategories } from '../../utils/courseCatalog.js'
 import { formatCompactRupiah } from '../../utils/format.js'
+import CourseForm from './CourseForm.jsx'
 import './AdminDashboard.css'
 
-function AdminDashboard({ courses, deleteCourse, restoreCourse }) {
+function AdminDashboard({ courses, addCourse, updateCourse, deleteCourse, restoreCourse }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [lastDeleted, setLastDeleted] = useState(null)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingCourse, setEditingCourse] = useState(null)
 
   useEffect(() => {
     if (!lastDeleted) return undefined
@@ -38,6 +41,30 @@ function AdminDashboard({ courses, deleteCourse, restoreCourse }) {
     return matchesCategory && matchesSearch
   })
 
+  const openCreateForm = () => {
+    setEditingCourse(null)
+    setIsFormOpen(true)
+  }
+
+  const openEditForm = (course) => {
+    setEditingCourse(course)
+    setIsFormOpen(true)
+  }
+
+  const closeForm = () => {
+    setIsFormOpen(false)
+    setEditingCourse(null)
+  }
+
+  const handleFormSubmit = (data) => {
+    if (editingCourse) {
+      updateCourse(editingCourse.id, data)
+    } else {
+      addCourse(data)
+    }
+    closeForm()
+  }
+
   const handleDelete = (course) => {
     const removed = deleteCourse(course.id)
     if (removed) setLastDeleted(removed)
@@ -57,6 +84,9 @@ function AdminDashboard({ courses, deleteCourse, restoreCourse }) {
             <h1 className="admin-title">Admin Studio</h1>
             <p className="admin-subtitle">Kelola Koleksi Video Pembelajaran Unggulan.</p>
           </div>
+          <button type="button" className="admin-btn-primary admin-add-btn" onClick={openCreateForm}>
+            <FiPlus aria-hidden="true" /> Tambah Kelas
+          </button>
         </header>
 
         <div className="admin-stats">
@@ -104,6 +134,14 @@ function AdminDashboard({ courses, deleteCourse, restoreCourse }) {
                 <div className="admin-card-actions">
                   <button
                     type="button"
+                    className="admin-icon-btn"
+                    aria-label={`Edit ${course.title}`}
+                    onClick={() => openEditForm(course)}
+                  >
+                    <FiEdit2 aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
                     className="admin-icon-btn admin-delete-btn"
                     aria-label={`Hapus ${course.title}`}
                     onClick={() => handleDelete(course)}
@@ -116,6 +154,15 @@ function AdminDashboard({ courses, deleteCourse, restoreCourse }) {
           </div>
         )}
       </div>
+
+      {isFormOpen && (
+        <CourseForm
+          key={editingCourse?.id ?? 'new'}
+          initialCourse={editingCourse}
+          onSubmit={handleFormSubmit}
+          onClose={closeForm}
+        />
+      )}
 
       {lastDeleted && (
         <div className="admin-toast" role="status">
