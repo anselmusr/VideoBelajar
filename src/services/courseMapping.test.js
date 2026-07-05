@@ -61,7 +61,7 @@ describe('courseToRow', () => {
   })
 
   it('tidak menyertakan id jika undefined', () => {
-    const { id, ...tanpaId } = course
+    const { id: _id, ...tanpaId } = course
     expect(courseToRow(tanpaId)).not.toHaveProperty('id')
   })
 
