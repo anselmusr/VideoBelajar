@@ -6,6 +6,7 @@ import Footer from './components/Footer/Footer.jsx'
 import Home from './pages/Home/Home.jsx'
 import Login from './pages/Login/Login.jsx'
 import Register from './pages/Register/Register.jsx'
+import AdminDashboard from './pages/Admin/AdminDashboard.jsx'
 import { useCourses } from './hooks/useCourses.js'
 import { footerContent, navbarContent } from './utils/siteContent.js'
 import './App.css'
@@ -31,7 +32,7 @@ function ScrollToTopOnPathChange() {
 }
 
 function App() {
-  const { courses } = useCourses()
+  const { courses, addCourse, updateCourse, deleteCourse, restoreCourse } = useCourses()
   const [isAdmin, setIsAdmin] = useState(readAdminSession)
 
   const handleAdminLogin = () => {
@@ -66,6 +67,22 @@ function App() {
         <Route path="/" element={<Home courses={courses} />} />
         <Route path="/login" element={<Login onAdminLogin={handleAdminLogin} />} />
         <Route path="/register" element={<Register />} />
+        <Route
+          path="/admin"
+          element={
+            isAdmin ? (
+              <AdminDashboard
+                courses={courses}
+                addCourse={addCourse}
+                updateCourse={updateCourse}
+                deleteCourse={deleteCourse}
+                restoreCourse={restoreCourse}
+              />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Footer

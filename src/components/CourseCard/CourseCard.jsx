@@ -1,14 +1,7 @@
 import { FaRegStar, FaStar } from 'react-icons/fa'
 import { resolveCourseAssets } from '../../utils/courseCatalog.js'
+import { formatCompactRupiah } from '../../utils/format.js'
 import './CourseCard.css'
-
-function formatCompactRupiah(value) {
-  if (value >= 1000) {
-    return `Rp ${Math.round(value / 1000)}K`
-  }
-
-  return `Rp ${value}`
-}
 
 function CourseRating({ rating, reviews, className = '' }) {
   const filledStars = Math.round(rating)
