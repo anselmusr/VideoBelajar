@@ -66,7 +66,7 @@ function courseFromDraft(draft) {
   }
 }
 
-function CourseForm({ initialCourse, onSubmit, onClose }) {
+function CourseForm({ initialCourse, onSubmit, onClose, isSaving = false }) {
   const [draft, setDraft] = useState(() =>
     initialCourse ? draftFromCourse(initialCourse) : emptyDraft,
   )
@@ -198,8 +198,8 @@ function CourseForm({ initialCourse, onSubmit, onClose }) {
 
             <div className="admin-form-actions">
               <button type="button" className="admin-btn-secondary" onClick={onClose}>Batal</button>
-              <button type="submit" className="admin-btn-primary">
-                {initialCourse ? 'Simpan Perubahan' : 'Tambah Kelas'}
+              <button type="submit" className="admin-btn-primary" disabled={isSaving}>
+                {isSaving ? 'Menyimpan...' : initialCourse ? 'Simpan Perubahan' : 'Tambah Kelas'}
               </button>
             </div>
           </form>
