@@ -31,7 +31,7 @@ function Home() {
         <main>
             <Hero {...heroContent} />
             <section id="kategori" className="kategori-anchor">
-                {status === 'loading' && (
+                {(status === 'idle' || status === 'loading') && (
                     <div className="page-container courses-loading" role="status">
                         <span className="courses-spinner" aria-hidden="true" />
                         Memuat kelas...

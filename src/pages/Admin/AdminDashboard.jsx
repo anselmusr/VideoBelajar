@@ -70,6 +70,7 @@ function AdminDashboard() {
   }
 
   const handleFormSubmit = async (data) => {
+    if (isSaving) return
     setIsSaving(true)
     try {
       if (editingCourse) {
@@ -159,7 +160,7 @@ function AdminDashboard() {
           </select>
         </div>
 
-        {status === 'loading' && (
+        {(status === 'idle' || status === 'loading') && (
           <p className="admin-empty" role="status">Memuat kelas...</p>
         )}
 
