@@ -4,6 +4,7 @@ import CourseCard from '../../components/CourseCard/CourseCard.jsx'
 import { courseCategories } from '../../utils/courseCatalog.js'
 import { formatCompactRupiah } from '../../utils/format.js'
 import CourseForm from './CourseForm.jsx'
+import UserManager from './UserManager.jsx'
 import './AdminDashboard.css'
 
 function AdminDashboard({
@@ -20,6 +21,7 @@ function AdminDashboard({
   const [lastDeleted, setLastDeleted] = useState(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingCourse, setEditingCourse] = useState(null)
+  const [activeTab, setActiveTab] = useState('courses')
 
   useEffect(() => {
     if (!lastDeleted) return undefined
@@ -90,79 +92,108 @@ function AdminDashboard({
             <h1 className="admin-title">Admin Studio</h1>
             <p className="admin-subtitle">Kelola Koleksi Video Pembelajaran Unggulan.</p>
           </div>
-          <button type="button" className="admin-btn-primary admin-add-btn" onClick={openCreateForm}>
-            <FiPlus aria-hidden="true" /> Tambah Kelas
-          </button>
+          {activeTab === 'courses' && (
+            <button type="button" className="admin-btn-primary admin-add-btn" onClick={openCreateForm}>
+              <FiPlus aria-hidden="true" /> Tambah Kelas
+            </button>
+          )}
         </header>
 
-        <div className="admin-stats">
-          {stats.map((stat) => (
-            <div className="admin-stat-card" key={stat.id}>
-              <strong>{stat.value}</strong>
-              <span>{stat.label}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="admin-toolbar">
-          <label className="admin-search">
-            <FiSearch aria-hidden="true" />
-            <input
-              type="search"
-              placeholder="Cari judul kelas..."
-              aria-label="Cari judul kelas"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-            />
-          </label>
-          <select
-            className="admin-filter"
-            value={categoryFilter}
-            onChange={(event) => setCategoryFilter(event.target.value)}
-            aria-label="Filter kategori"
+        <div className="admin-tabs" role="tablist" aria-label="Bagian admin">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'courses'}
+            className={`admin-tab ${activeTab === 'courses' ? 'active' : ''}`}
+            onClick={() => setActiveTab('courses')}
           >
-            {courseCategories.map((category) => (
-              <option key={category.id} value={category.id}>{category.label}</option>
-            ))}
-          </select>
+            Kelas
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'users'}
+            className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            Pengguna
+          </button>
         </div>
 
-        {error && <p className="admin-error" role="alert">{error}</p>}
-
-        {isLoading ? (
-          <p className="admin-empty">Memuat kelas…</p>
-        ) : visibleCourses.length === 0 ? (
-          <p className="admin-empty">
-            {totalCourses === 0
-              ? 'Belum ada kelas. Tambahkan kelas pertama untuk mengisi koleksi.'
-              : 'Tidak ada kelas yang cocok dengan pencarian atau filter.'}
-          </p>
-        ) : (
-          <div className="admin-grid">
-            {visibleCourses.map((course) => (
-              <div className="admin-card-wrap" key={course.id}>
-                <CourseCard course={course} />
-                <div className="admin-card-actions">
-                  <button
-                    type="button"
-                    className="admin-icon-btn"
-                    aria-label={`Edit ${course.title}`}
-                    onClick={() => openEditForm(course)}
-                  >
-                    <FiEdit2 aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-icon-btn admin-delete-btn"
-                    aria-label={`Hapus ${course.title}`}
-                    onClick={() => handleDelete(course)}
-                  >
-                    <FiTrash2 aria-hidden="true" />
-                  </button>
+        {activeTab === 'courses' ? (
+          <>
+            <div className="admin-stats">
+              {stats.map((stat) => (
+                <div className="admin-stat-card" key={stat.id}>
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
                 </div>
+              ))}
+            </div>
+
+            <div className="admin-toolbar">
+              <label className="admin-search">
+                <FiSearch aria-hidden="true" />
+                <input
+                  type="search"
+                  placeholder="Cari judul kelas..."
+                  aria-label="Cari judul kelas"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                />
+              </label>
+              <select
+                className="admin-filter"
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value)}
+                aria-label="Filter kategori"
+              >
+                {courseCategories.map((category) => (
+                  <option key={category.id} value={category.id}>{category.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {error && <p className="admin-error" role="alert">{error}</p>}
+
+            {isLoading ? (
+              <p className="admin-empty">Memuat kelas…</p>
+            ) : visibleCourses.length === 0 ? (
+              <p className="admin-empty">
+                {totalCourses === 0
+                  ? 'Belum ada kelas. Tambahkan kelas pertama untuk mengisi koleksi.'
+                  : 'Tidak ada kelas yang cocok dengan pencarian atau filter.'}
+              </p>
+            ) : (
+              <div className="admin-grid">
+                {visibleCourses.map((course) => (
+                  <div className="admin-card-wrap" key={course.id}>
+                    <CourseCard course={course} />
+                    <div className="admin-card-actions">
+                      <button
+                        type="button"
+                        className="admin-icon-btn"
+                        aria-label={`Edit ${course.title}`}
+                        onClick={() => openEditForm(course)}
+                      >
+                        <FiEdit2 aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-icon-btn admin-delete-btn"
+                        aria-label={`Hapus ${course.title}`}
+                        onClick={() => handleDelete(course)}
+                      >
+                        <FiTrash2 aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
+        ) : (
+          <UserManager />
         )}
       </div>
 
