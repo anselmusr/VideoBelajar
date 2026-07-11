@@ -1,3 +1,9 @@
 .kategori-anchor {
 	scroll-margin-top: 84px;
 }
+
+.home-status {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--grey-700);
+}

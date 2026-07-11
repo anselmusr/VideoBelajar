@@ -1,59 +1,85 @@
 import { useEffect, useState } from 'react'
 import { courseCatalog } from '../utils/courseCatalog.js'
+import * as coursesApi from '../services/api/courses.js'
 
-const STORAGE_KEY = 'videobelajar.courses'
-
-function loadInitialCourses() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return courseCatalog
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : courseCatalog
-  } catch {
-    return courseCatalog
+async function seedCourses() {
+  const seeded = []
+  for (const { id: _id, ...payload } of courseCatalog) {
+    seeded.push(await coursesApi.addCourse(payload))
   }
+  return seeded
 }
 
 export function useCourses() {
-  const [courses, setCourses] = useState(loadInitialCourses)
+  const [courses, setCourses] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(courses))
-    } catch {
-      // storage tidak tersedia — state tetap berjalan tanpa persistensi
+    let isMounted = true
+
+    async function load() {
+      try {
+        const data = await coursesApi.getCourses()
+        const initial = data.length > 0 ? data : await seedCourses()
+        if (isMounted) setCourses(initial)
+      } catch (err) {
+        if (isMounted) setError(err.message)
+      } finally {
+        if (isMounted) setIsLoading(false)
+      }
     }
-  }, [courses])
 
-  const addCourse = (data) => {
-    setCourses((prev) => {
-      const nextId = prev.reduce((max, course) => Math.max(max, course.id), 0) + 1
-      return [...prev, { ...data, id: nextId }]
-    })
+    load()
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const addCourse = async (data) => {
+    try {
+      const created = await coursesApi.addCourse(data)
+      setCourses((prev) => [...prev, created])
+      setError(null)
+      return created
+    } catch (err) {
+      setError(err.message)
+      return null
+    }
   }
 
-  const updateCourse = (id, patch) => {
-    setCourses((prev) =>
-      prev.map((course) => (course.id === id ? { ...course, ...patch } : course)),
-    )
+  const updateCourse = async (id, patch) => {
+    const existing = courses.find((course) => course.id === id)
+    if (!existing) return null
+    try {
+      const updated = await coursesApi.updateCourse(id, { ...existing, ...patch })
+      setCourses((prev) => prev.map((course) => (course.id === id ? updated : course)))
+      setError(null)
+      return updated
+    } catch (err) {
+      setError(err.message)
+      return null
+    }
   }
 
-  const deleteCourse = (id) => {
+  const deleteCourse = async (id) => {
     const index = courses.findIndex((course) => course.id === id)
     if (index === -1) return null
-    const course = courses[index]
-    setCourses((prev) => prev.filter((item) => item.id !== id))
-    return { course, index }
+    try {
+      await coursesApi.deleteCourse(id)
+      setCourses((prev) => prev.filter((course) => course.id !== id))
+      setError(null)
+      return { course: courses[index], index }
+    } catch (err) {
+      setError(err.message)
+      return null
+    }
   }
 
-  const restoreCourse = (course, index) => {
-    setCourses((prev) => {
-      const next = [...prev]
-      const insertAt = Math.min(Math.max(index, 0), next.length)
-      next.splice(insertAt, 0, course)
-      return next
-    })
+  const restoreCourse = (course) => {
+    const { id: _id, ...payload } = course
+    return addCourse(payload)
   }
 
-  return { courses, addCourse, updateCourse, deleteCourse, restoreCourse }
+  return { courses, isLoading, error, addCourse, updateCourse, deleteCourse, restoreCourse }
 }

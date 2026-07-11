@@ -1,108 +1,160 @@
-import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { courseCatalog } from '../utils/courseCatalog.js'
+import * as coursesApi from '../services/api/courses.js'
 import { useCourses } from './useCourses.js'
 
-const STORAGE_KEY = 'videobelajar.courses'
+vi.mock('../services/api/courses.js', () => ({
+  getCourses: vi.fn(),
+  addCourse: vi.fn(),
+  updateCourse: vi.fn(),
+  deleteCourse: vi.fn(),
+}))
 
-const sampleCourse = {
-  title: 'Kelas Baru',
-  description: 'Deskripsi kelas baru.',
-  category: 'design',
-  instructor: 'Budi Santoso',
-  role: 'Lead Designer',
-  company: 'di Tokopedia',
-  rating: 4.5,
-  reviews: 12,
-  price: 250000,
-  imageId: 2,
-  avatarId: 3,
+const sampleCourses = [
+  {
+    id: '1',
+    title: 'Kelas A',
+    description: 'Deskripsi A',
+    category: 'design',
+    instructor: 'Ana',
+    role: 'Designer',
+    company: 'di Gojek',
+    rating: 4,
+    reviews: 10,
+    price: 100000,
+    imageId: 1,
+    avatarId: 1,
+  },
+  {
+    id: '2',
+    title: 'Kelas B',
+    description: 'Deskripsi B',
+    category: 'business',
+    instructor: 'Budi',
+    role: 'Analyst',
+    company: 'di Tokopedia',
+    rating: 4.5,
+    reviews: 20,
+    price: 200000,
+    imageId: 2,
+    avatarId: 2,
+  },
+]
+
+async function renderReadyHook() {
+  coursesApi.getCourses.mockResolvedValue(sampleCourses)
+  const view = renderHook(() => useCourses())
+  await waitFor(() => expect(view.result.current.isLoading).toBe(false))
+  return view
 }
 
 beforeEach(() => {
-  window.localStorage.clear()
+  vi.resetAllMocks()
 })
 
 describe('useCourses inisialisasi', () => {
-  it('memakai courseCatalog saat localStorage kosong', () => {
-    const { result } = renderHook(() => useCourses())
-    expect(result.current.courses).toEqual(courseCatalog)
+  it('mengambil kursus dari API saat mount', async () => {
+    const { result } = await renderReadyHook()
+    expect(result.current.courses).toEqual(sampleCourses)
+    expect(result.current.error).toBeNull()
   })
 
-  it('memakai data localStorage jika ada', () => {
-    const saved = [{ ...sampleCourse, id: 42 }]
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
+  it('auto-seed dari courseCatalog saat API kosong', async () => {
+    coursesApi.getCourses.mockResolvedValue([])
+    coursesApi.addCourse.mockImplementation(async (course) => ({ ...course, id: 'seed' }))
     const { result } = renderHook(() => useCourses())
-    expect(result.current.courses).toEqual(saved)
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(coursesApi.addCourse).toHaveBeenCalledTimes(courseCatalog.length)
+    expect(result.current.courses).toHaveLength(courseCatalog.length)
+    expect(coursesApi.addCourse.mock.calls[0][0]).not.toHaveProperty('id')
   })
 
-  it('fallback ke courseCatalog saat JSON korup atau bukan array', () => {
-    window.localStorage.setItem(STORAGE_KEY, '{json rusak')
-    const { result: corrupt } = renderHook(() => useCourses())
-    expect(corrupt.current.courses).toEqual(courseCatalog)
-
-    window.localStorage.setItem(STORAGE_KEY, '"bukan array"')
-    const { result: notArray } = renderHook(() => useCourses())
-    expect(notArray.current.courses).toEqual(courseCatalog)
+  it('menyimpan pesan error saat fetch gagal', async () => {
+    coursesApi.getCourses.mockRejectedValue(new Error('Gagal terhubung.'))
+    const { result } = renderHook(() => useCourses())
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(result.current.error).toBe('Gagal terhubung.')
+    expect(result.current.courses).toEqual([])
   })
 })
 
 describe('useCourses CRUD', () => {
-  it('addCourse menambah kursus dengan id max+1 dan persist ke localStorage', () => {
-    const { result } = renderHook(() => useCourses())
-    act(() => {
-      result.current.addCourse(sampleCourse)
+  it('addCourse menunggu API lalu menambah state', async () => {
+    const { result } = await renderReadyHook()
+    coursesApi.addCourse.mockResolvedValue({ ...sampleCourses[0], id: '3', title: 'Kelas C' })
+    await act(async () => {
+      await result.current.addCourse({ title: 'Kelas C' })
     })
-    expect(result.current.courses).toHaveLength(10)
-    expect(result.current.courses[9]).toEqual({ ...sampleCourse, id: 10 })
-    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY))).toHaveLength(10)
+    expect(result.current.courses).toHaveLength(3)
+    expect(result.current.courses[2].id).toBe('3')
   })
 
-  it('updateCourse mem-patch kursus secara immutable', () => {
-    const { result } = renderHook(() => useCourses())
-    const before = result.current.courses
-    act(() => {
-      result.current.updateCourse(3, { title: 'Judul Diubah', price: 99000 })
+  it('addCourse mengembalikan null dan menyimpan error saat API gagal', async () => {
+    const { result } = await renderReadyHook()
+    coursesApi.addCourse.mockRejectedValue(new Error('Permintaan gagal (500). Coba lagi.'))
+    let created
+    await act(async () => {
+      created = await result.current.addCourse({ title: 'Kelas C' })
     })
-    const updated = result.current.courses.find((course) => course.id === 3)
-    expect(updated.title).toBe('Judul Diubah')
-    expect(updated.price).toBe(99000)
-    expect(updated.description).toBe(before.find((c) => c.id === 3).description)
-    expect(result.current.courses).not.toBe(before)
-    expect(result.current.courses).toHaveLength(9)
+    expect(created).toBeNull()
+    expect(result.current.error).toBe('Permintaan gagal (500). Coba lagi.')
+    expect(result.current.courses).toHaveLength(2)
   })
 
-  it('deleteCourse menghapus dan mengembalikan {course, index}', () => {
-    const { result } = renderHook(() => useCourses())
+  it('updateCourse mengirim objek gabungan dan memakai respons API', async () => {
+    const { result } = await renderReadyHook()
+    coursesApi.updateCourse.mockImplementation(async (id, body) => body)
+    await act(async () => {
+      await result.current.updateCourse('1', { title: 'Judul Baru' })
+    })
+    expect(coursesApi.updateCourse).toHaveBeenCalledWith('1', {
+      ...sampleCourses[0],
+      title: 'Judul Baru',
+    })
+    expect(result.current.courses[0].title).toBe('Judul Baru')
+  })
+
+  it('updateCourse mengembalikan null untuk id tak dikenal tanpa memanggil API', async () => {
+    const { result } = await renderReadyHook()
+    let updated
+    await act(async () => {
+      updated = await result.current.updateCourse('999', { title: 'X' })
+    })
+    expect(updated).toBeNull()
+    expect(coursesApi.updateCourse).not.toHaveBeenCalled()
+  })
+
+  it('deleteCourse menghapus via API dan mengembalikan {course, index}', async () => {
+    const { result } = await renderReadyHook()
+    coursesApi.deleteCourse.mockResolvedValue(sampleCourses[0])
     let removed
-    act(() => {
-      removed = result.current.deleteCourse(3)
+    await act(async () => {
+      removed = await result.current.deleteCourse('1')
     })
-    expect(removed.course.id).toBe(3)
-    expect(removed.index).toBe(2)
-    expect(result.current.courses).toHaveLength(8)
-    expect(result.current.courses.some((course) => course.id === 3)).toBe(false)
+    expect(removed).toEqual({ course: sampleCourses[0], index: 0 })
+    expect(result.current.courses).toHaveLength(1)
+    expect(result.current.courses[0].id).toBe('2')
   })
 
-  it('deleteCourse mengembalikan null untuk id yang tidak ada', () => {
-    const { result } = renderHook(() => useCourses())
+  it('deleteCourse mengembalikan null untuk id tak dikenal tanpa memanggil API', async () => {
+    const { result } = await renderReadyHook()
     let removed
-    act(() => {
-      removed = result.current.deleteCourse(999)
+    await act(async () => {
+      removed = await result.current.deleteCourse('999')
     })
     expect(removed).toBeNull()
-    expect(result.current.courses).toHaveLength(9)
+    expect(coursesApi.deleteCourse).not.toHaveBeenCalled()
   })
 
-  it('restoreCourse mengembalikan kursus ke posisi semula', () => {
-    const { result } = renderHook(() => useCourses())
-    let removed
-    act(() => {
-      removed = result.current.deleteCourse(3)
+  it('restoreCourse mem-POST ulang tanpa id lama', async () => {
+    const { result } = await renderReadyHook()
+    coursesApi.addCourse.mockImplementation(async (course) => ({ ...course, id: '9' }))
+    await act(async () => {
+      await result.current.restoreCourse(sampleCourses[0])
     })
-    act(() => {
-      result.current.restoreCourse(removed.course, removed.index)
-    })
-    expect(result.current.courses).toEqual(courseCatalog)
+    expect(coursesApi.addCourse.mock.calls[0][0]).not.toHaveProperty('id')
+    expect(result.current.courses).toHaveLength(3)
+    expect(result.current.courses[2].id).toBe('9')
   })
 })

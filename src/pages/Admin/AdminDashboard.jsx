@@ -6,7 +6,15 @@ import { formatCompactRupiah } from '../../utils/format.js'
 import CourseForm from './CourseForm.jsx'
 import './AdminDashboard.css'
 
-function AdminDashboard({ courses, addCourse, updateCourse, deleteCourse, restoreCourse }) {
+function AdminDashboard({
+  courses,
+  isLoading,
+  error,
+  addCourse,
+  updateCourse,
+  deleteCourse,
+  restoreCourse,
+}) {
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [lastDeleted, setLastDeleted] = useState(null)
@@ -56,23 +64,21 @@ function AdminDashboard({ courses, addCourse, updateCourse, deleteCourse, restor
     setEditingCourse(null)
   }
 
-  const handleFormSubmit = (data) => {
-    if (editingCourse) {
-      updateCourse(editingCourse.id, data)
-    } else {
-      addCourse(data)
-    }
-    closeForm()
+  const handleFormSubmit = async (data) => {
+    const saved = editingCourse
+      ? await updateCourse(editingCourse.id, data)
+      : await addCourse(data)
+    if (saved) closeForm()
   }
 
-  const handleDelete = (course) => {
-    const removed = deleteCourse(course.id)
+  const handleDelete = async (course) => {
+    const removed = await deleteCourse(course.id)
     if (removed) setLastDeleted(removed)
   }
 
   const handleUndo = () => {
     if (!lastDeleted) return
-    restoreCourse(lastDeleted.course, lastDeleted.index)
+    restoreCourse(lastDeleted.course)
     setLastDeleted(null)
   }
 
@@ -121,7 +127,11 @@ function AdminDashboard({ courses, addCourse, updateCourse, deleteCourse, restor
           </select>
         </div>
 
-        {visibleCourses.length === 0 ? (
+        {error && <p className="admin-error" role="alert">{error}</p>}
+
+        {isLoading ? (
+          <p className="admin-empty">Memuat kelas…</p>
+        ) : visibleCourses.length === 0 ? (
           <p className="admin-empty">
             {totalCourses === 0
               ? 'Belum ada kelas. Tambahkan kelas pertama untuk mengisi koleksi.'

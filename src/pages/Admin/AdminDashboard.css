@@ -138,6 +138,15 @@
   color: var(--color-text-dark-secondary);
 }
 
+.admin-error {
+  background: #fdecea;
+  border: 1px solid var(--color-error-hover);
+  color: var(--color-error-hover);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 0 0 16px;
+}
+
 .admin-toast {
   position: fixed;
   left: 50%;

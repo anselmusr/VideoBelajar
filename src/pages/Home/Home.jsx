@@ -11,7 +11,7 @@ import {
     newsletterContent,
 } from '../../utils/siteContent.js'
 
-function Home({ courses }) {
+function Home({ courses, isLoading, error }) {
     const location = useLocation()
 
     useEffect(() => {
@@ -27,12 +27,18 @@ function Home({ courses }) {
         <main>
             <Hero {...heroContent} />
             <section id="kategori" className="kategori-anchor">
-                <Features
-                    title={featuredCoursesContent.title}
-                    subtitle={featuredCoursesContent.subtitle}
-                    categories={courseCategories}
-                    courses={courses}
-                />
+                {isLoading ? (
+                    <p className="home-status">Memuat kelas…</p>
+                ) : error ? (
+                    <p className="home-status" role="alert">{error}</p>
+                ) : (
+                    <Features
+                        title={featuredCoursesContent.title}
+                        subtitle={featuredCoursesContent.subtitle}
+                        categories={courseCategories}
+                        courses={courses}
+                    />
+                )}
             </section>
             <CallToAction {...newsletterContent} />
         </main>

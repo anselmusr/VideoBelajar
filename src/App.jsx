@@ -32,7 +32,8 @@ function ScrollToTopOnPathChange() {
 }
 
 function App() {
-  const { courses, addCourse, updateCourse, deleteCourse, restoreCourse } = useCourses()
+  const { courses, isLoading, error, addCourse, updateCourse, deleteCourse, restoreCourse } =
+    useCourses()
   const [isAdmin, setIsAdmin] = useState(readAdminSession)
 
   const handleAdminLogin = () => {
@@ -64,7 +65,7 @@ function App() {
       />
       <ScrollToTopOnPathChange />
       <Routes>
-        <Route path="/" element={<Home courses={courses} />} />
+        <Route path="/" element={<Home courses={courses} isLoading={isLoading} error={error} />} />
         <Route path="/login" element={<Login onAdminLogin={handleAdminLogin} />} />
         <Route path="/register" element={<Register />} />
         <Route
@@ -73,6 +74,8 @@ function App() {
             isAdmin ? (
               <AdminDashboard
                 courses={courses}
+                isLoading={isLoading}
+                error={error}
                 addCourse={addCourse}
                 updateCourse={updateCourse}
                 deleteCourse={deleteCourse}
