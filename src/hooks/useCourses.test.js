@@ -70,6 +70,17 @@ describe('useCourses inisialisasi', () => {
     expect(coursesApi.addCourse.mock.calls[0][0]).not.toHaveProperty('id')
   })
 
+  it('tidak seeding ganda saat dua mount berjalan bersamaan (StrictMode)', async () => {
+    coursesApi.getCourses.mockResolvedValue([])
+    coursesApi.addCourse.mockImplementation(async (course) => ({ ...course, id: 'seed' }))
+    const first = renderHook(() => useCourses())
+    const second = renderHook(() => useCourses())
+    await waitFor(() => expect(first.result.current.isLoading).toBe(false))
+    await waitFor(() => expect(second.result.current.isLoading).toBe(false))
+    expect(coursesApi.addCourse).toHaveBeenCalledTimes(courseCatalog.length)
+    expect(second.result.current.courses).toHaveLength(courseCatalog.length)
+  })
+
   it('menyimpan pesan error saat fetch gagal', async () => {
     coursesApi.getCourses.mockRejectedValue(new Error('Gagal terhubung.'))
     const { result } = renderHook(() => useCourses())

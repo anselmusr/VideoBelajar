@@ -10,6 +10,17 @@ async function seedCourses() {
   return seeded
 }
 
+let pendingSeed = null
+
+function seedCoursesShared() {
+  if (!pendingSeed) {
+    pendingSeed = seedCourses().finally(() => {
+      pendingSeed = null
+    })
+  }
+  return pendingSeed
+}
+
 export function useCourses() {
   const [courses, setCourses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -21,7 +32,7 @@ export function useCourses() {
     async function load() {
       try {
         const data = await coursesApi.getCourses()
-        const initial = data.length > 0 ? data : await seedCourses()
+        const initial = data.length > 0 ? data : await seedCoursesShared()
         if (isMounted) setCourses(initial)
       } catch (err) {
         if (isMounted) setError(err.message)
