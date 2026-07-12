@@ -11,6 +11,23 @@ VideoBelajar adalah platform pembelajaran video berbasis web yang memberi penggu
 - React Router DOM
 - React Icons
 - ESLint
+- Axios
+- mockapi.io (fake REST API)
+
+## Setup API (mockapi.io)
+
+Data kelas dan pengguna disimpan di [mockapi.io](https://mockapi.io/).
+
+1. Buat project di mockapi.io dengan 2 resource: `courses` dan `users` (kosongkan data bawaannya — aplikasi akan mengisi katalog kelas otomatis saat pertama dijalankan).
+2. Salin `.env.example` menjadi `.env.local`, lalu isi `VITE_API_BASE_URL` dengan base URL project kamu, contoh:
+
+	```
+	VITE_API_BASE_URL=https://xxxxxxxxxxxx.mockapi.io/api/v1
+	```
+
+3. Jalankan `npm install` lalu `npm run dev`.
+
+Catatan: untuk deploy (Vercel), set env var `VITE_API_BASE_URL` di dashboard project. Password user tersimpan apa adanya di mockapi (kebutuhan tugas) — jangan gunakan password sungguhan.
 
 ## Fitur yang Sudah Tersedia
 
