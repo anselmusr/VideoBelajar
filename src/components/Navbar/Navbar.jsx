@@ -45,7 +45,7 @@ function Navbar({ logo, links = [], actions = [], isAdmin = false, user = null, 
                 className="btn btn-login nav-link-btn nav-admin-btn"
                 onClick={closeMenu}
               >
-                Kelola Kelas
+                Admin Studio
               </Link>
             </li>
             <li className="menu-item">
