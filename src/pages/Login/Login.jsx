@@ -1,18 +1,24 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FcGoogle } from 'react-icons/fc'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { isAdminCredentials } from '../../utils/adminAuth.js'
+import { getUsers } from '../../services/api/users.js'
 import './Login.css'
 
-function Login({ onAdminLogin }) {
+function Login({ onAdminLogin, onUserLogin }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const registeredMessage = location.state?.registered
+    ? 'Pendaftaran berhasil. Silakan masuk.'
+    : ''
 
-  const handleLoginSubmit = (event) => {
+  const handleLoginSubmit = async (event) => {
     event.preventDefault()
     if (isAdminCredentials(email, password)) {
       setError('')
@@ -20,7 +26,25 @@ function Login({ onAdminLogin }) {
       navigate('/admin')
       return
     }
-    setError('Email atau kata sandi salah.')
+    setIsSubmitting(true)
+    try {
+      const users = await getUsers()
+      const match = users.find(
+        (user) =>
+          user.email.toLowerCase() === email.trim().toLowerCase() && user.password === password,
+      )
+      if (!match) {
+        setError('Email atau kata sandi salah.')
+        return
+      }
+      setError('')
+      onUserLogin({ id: match.id, fullName: match.fullName, email: match.email })
+      navigate('/')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleGoogleLogin = () => {
@@ -38,6 +62,9 @@ function Login({ onAdminLogin }) {
         <div className="login-card">
           <h1 className="login-title">Masuk ke Akun</h1>
           <p className="login-subtitle">Yuk, lanjutin belajarmu di videobelajar.</p>
+          {registeredMessage && !error && (
+            <p className="login-success" role="status">{registeredMessage}</p>
+          )}
 
           <form className="login-form" onSubmit={handleLoginSubmit}>
             <label className="login-label" htmlFor="login-email">E-Mail <span>*</span></label>
@@ -76,7 +103,9 @@ function Login({ onAdminLogin }) {
               <Link to="/login" className="login-forgot-link" onClick={handleForgotPassword}>Lupa Password?</Link>
             </p>
 
-            <button className="login-submit" type="submit">Masuk</button>
+            <button className="login-submit" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Memeriksa…' : 'Masuk'}
+            </button>
             <Link to="/register" className="login-register-btn">Daftar</Link>
 
             <p className="login-divider">atau</p>

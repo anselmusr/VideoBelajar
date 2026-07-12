@@ -59,6 +59,12 @@
   background-color: var(--grey-100);
 }
 
+.nav-user {
+  font-weight: 600;
+  color: var(--color-text-dark-primary);
+  padding: 8px 12px;
+}
+
 /* Buttons */
 .btn {
   border-radius: 15px;

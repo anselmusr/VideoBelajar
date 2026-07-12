@@ -21,6 +21,17 @@ function readAdminSession() {
   }
 }
 
+const USER_SESSION_KEY = 'videobelajar.userSession'
+
+function readUserSession() {
+  try {
+    const raw = window.localStorage.getItem(USER_SESSION_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
 function ScrollToTopOnPathChange() {
   const { pathname } = useLocation()
 
@@ -35,6 +46,7 @@ function App() {
   const { courses, isLoading, error, addCourse, updateCourse, deleteCourse, restoreCourse } =
     useCourses()
   const [isAdmin, setIsAdmin] = useState(readAdminSession)
+  const [user, setUser] = useState(readUserSession)
 
   const handleAdminLogin = () => {
     setIsAdmin(true)
@@ -45,10 +57,21 @@ function App() {
     }
   }
 
+  const handleUserLogin = (userData) => {
+    setUser(userData)
+    try {
+      window.localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData))
+    } catch {
+      // storage tidak tersedia — sesi hanya bertahan selama tab terbuka
+    }
+  }
+
   const handleLogout = () => {
     setIsAdmin(false)
+    setUser(null)
     try {
       window.localStorage.removeItem(ADMIN_SESSION_KEY)
+      window.localStorage.removeItem(USER_SESSION_KEY)
     } catch {
       // storage tidak tersedia — tidak ada yang perlu dihapus
     }
@@ -61,12 +84,16 @@ function App() {
         links={navbarContent.links}
         actions={navbarContent.actions}
         isAdmin={isAdmin}
+        user={user}
         onLogout={handleLogout}
       />
       <ScrollToTopOnPathChange />
       <Routes>
         <Route path="/" element={<Home courses={courses} isLoading={isLoading} error={error} />} />
-        <Route path="/login" element={<Login onAdminLogin={handleAdminLogin} />} />
+        <Route
+          path="/login"
+          element={<Login onAdminLogin={handleAdminLogin} onUserLogin={handleUserLogin} />}
+        />
         <Route path="/register" element={<Register />} />
         <Route
           path="/admin"

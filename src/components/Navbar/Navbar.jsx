@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { FiMenu, FiX } from 'react-icons/fi'
 import './Navbar.css'
 
-function Navbar({ logo, links = [], actions = [], isAdmin = false, onLogout }) {
+function Navbar({ logo, links = [], actions = [], isAdmin = false, user = null, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const closeMenu = () => setIsOpen(false)
@@ -48,6 +48,19 @@ function Navbar({ logo, links = [], actions = [], isAdmin = false, onLogout }) {
                 Kelola Kelas
               </Link>
             </li>
+            <li className="menu-item">
+              <button
+                type="button"
+                className="btn btn-register nav-link-btn"
+                onClick={handleLogoutClick}
+              >
+                Keluar
+              </button>
+            </li>
+          </>
+        ) : user ? (
+          <>
+            <li className="menu-item nav-user">Hai, {user.fullName?.split(' ')[0]}</li>
             <li className="menu-item">
               <button
                 type="button"
