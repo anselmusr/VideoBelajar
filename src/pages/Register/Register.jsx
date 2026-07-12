@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { addUser, getUsers } from '../../services/api/users.js'
 import { FcGoogle } from 'react-icons/fc'
 import { FiChevronDown, FiEye, FiEyeOff } from 'react-icons/fi'
 import './Register.css'
@@ -28,6 +29,9 @@ function Register() {
     confirmPassword: '',
   })
   const [errors, setErrors] = useState({})
+  const [submitError, setSubmitError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
   const countryMenuRef = useRef(null)
 
   const selectedCountry = countries.find((country) => country.code === selectedCountryCode) || FALLBACK_COUNTRIES[0]
@@ -96,7 +100,7 @@ function Register() {
     setErrors((prev) => ({ ...prev, [field]: '' }))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
     const nextErrors = {}
@@ -115,10 +119,28 @@ function Register() {
     }
 
     setErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) return
 
-    if (Object.keys(nextErrors).length === 0) {
-      // Placeholder success flow until backend registration is connected.
-      console.log('Register form valid', { ...formData, countryCode: selectedCountryCode })
+    setIsSubmitting(true)
+    setSubmitError('')
+    try {
+      const users = await getUsers()
+      const email = formData.email.trim().toLowerCase()
+      if (users.some((user) => user.email.toLowerCase() === email)) {
+        setErrors({ email: 'E-Mail sudah terdaftar.' })
+        return
+      }
+      await addUser({
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: `${selectedCountry.dialCode}${formData.phoneNumber.trim()}`,
+        password: formData.password,
+      })
+      navigate('/login', { state: { registered: true } })
+    } catch (err) {
+      setSubmitError(err.message)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -255,7 +277,11 @@ function Register() {
 
             <p className="forgot-wrap"><Link to="/login" className="forgot-link">Lupa Password?</Link></p>
 
-            <button type="submit" className="register-submit">Daftar</button>
+            {submitError && <p className="register-error" role="alert">{submitError}</p>}
+
+            <button type="submit" className="register-submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Mendaftarkan…' : 'Daftar'}
+            </button>
             <Link to="/login" className="register-login">Masuk</Link>
 
             <p className="divider">atau</p>
