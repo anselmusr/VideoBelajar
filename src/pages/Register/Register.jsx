@@ -126,7 +126,7 @@ function Register() {
     try {
       const users = await getUsers()
       const email = formData.email.trim().toLowerCase()
-      if (users.some((user) => user.email.toLowerCase() === email)) {
+      if (users.some((user) => user.email?.toLowerCase() === email)) {
         setErrors({ email: 'E-Mail sudah terdaftar.' })
         return
       }

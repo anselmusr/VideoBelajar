@@ -29,7 +29,7 @@ function Home({ courses, isLoading, error }) {
             <section id="kategori" className="kategori-anchor">
                 {isLoading ? (
                     <p className="home-status">Memuat kelas…</p>
-                ) : error ? (
+                ) : error && courses.length === 0 ? (
                     <p className="home-status" role="alert">{error}</p>
                 ) : (
                     <Features

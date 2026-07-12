@@ -31,7 +31,7 @@ function Login({ onAdminLogin, onUserLogin }) {
       const users = await getUsers()
       const match = users.find(
         (user) =>
-          user.email.toLowerCase() === email.trim().toLowerCase() && user.password === password,
+          user.email?.toLowerCase() === email.trim().toLowerCase() && user.password === password,
       )
       if (!match) {
         setError('Email atau kata sandi salah.')
