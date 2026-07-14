@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import CourseCard from '../../components/CourseCard/CourseCard.jsx'
 import { courseCategories } from '../../utils/courseCatalog.js'
+import {
+  addCourse,
+  deleteCourse,
+  restoreCourse,
+  updateCourse,
+} from '../../store/redux/coursesSlice.js'
 import { formatCompactRupiah } from '../../utils/format.js'
 import CourseForm from './CourseForm.jsx'
 import UserManager from './UserManager.jsx'
 import './AdminDashboard.css'
 
-function AdminDashboard({
-  courses,
-  isLoading,
-  error,
-  addCourse,
-  updateCourse,
-  deleteCourse,
-  restoreCourse,
-}) {
+function AdminDashboard() {
+  const dispatch = useDispatch()
+  const { items: courses, status, error } = useSelector((state) => state.courses)
+  const isLoading = status === 'idle' || status === 'loading'
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [lastDeleted, setLastDeleted] = useState(null)
@@ -67,20 +69,25 @@ function AdminDashboard({
   }
 
   const handleFormSubmit = async (data) => {
-    const saved = editingCourse
-      ? await updateCourse(editingCourse.id, data)
-      : await addCourse(data)
+    const action = editingCourse
+      ? updateCourse({ id: editingCourse.id, patch: data })
+      : addCourse(data)
+    const saved = await dispatch(action)
+      .unwrap()
+      .catch(() => null)
     if (saved) closeForm()
   }
 
   const handleDelete = async (course) => {
-    const removed = await deleteCourse(course.id)
+    const removed = await dispatch(deleteCourse(course.id))
+      .unwrap()
+      .catch(() => null)
     if (removed) setLastDeleted(removed)
   }
 
   const handleUndo = () => {
     if (!lastDeleted) return
-    restoreCourse(lastDeleted.course)
+    dispatch(restoreCourse(lastDeleted.course))
     setLastDeleted(null)
   }
 

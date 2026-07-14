@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { Analytics } from '@vercel/analytics/react'
 import Navbar from './components/Navbar/Navbar.jsx'
 import Footer from './components/Footer/Footer.jsx'
@@ -7,7 +8,7 @@ import Home from './pages/Home/Home.jsx'
 import Login from './pages/Login/Login.jsx'
 import Register from './pages/Register/Register.jsx'
 import AdminDashboard from './pages/Admin/AdminDashboard.jsx'
-import { useCourses } from './hooks/useCourses.js'
+import { fetchCourses } from './store/redux/coursesSlice.js'
 import { footerContent, navbarContent } from './utils/siteContent.js'
 import './App.css'
 
@@ -43,10 +44,13 @@ function ScrollToTopOnPathChange() {
 }
 
 function App() {
-  const { courses, isLoading, error, addCourse, updateCourse, deleteCourse, restoreCourse } =
-    useCourses()
+  const dispatch = useDispatch()
   const [isAdmin, setIsAdmin] = useState(readAdminSession)
   const [user, setUser] = useState(readUserSession)
+
+  useEffect(() => {
+    dispatch(fetchCourses())
+  }, [dispatch])
 
   const handleAdminLogin = () => {
     setIsAdmin(true)
@@ -89,7 +93,7 @@ function App() {
       />
       <ScrollToTopOnPathChange />
       <Routes>
-        <Route path="/" element={<Home courses={courses} isLoading={isLoading} error={error} />} />
+        <Route path="/" element={<Home />} />
         <Route
           path="/login"
           element={<Login onAdminLogin={handleAdminLogin} onUserLogin={handleUserLogin} />}
@@ -98,19 +102,7 @@ function App() {
         <Route
           path="/admin"
           element={
-            isAdmin ? (
-              <AdminDashboard
-                courses={courses}
-                isLoading={isLoading}
-                error={error}
-                addCourse={addCourse}
-                updateCourse={updateCourse}
-                deleteCourse={deleteCourse}
-                restoreCourse={restoreCourse}
-              />
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            isAdmin ? <AdminDashboard /> : <Navigate to="/login" replace />
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

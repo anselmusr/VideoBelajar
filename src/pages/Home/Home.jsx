@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import './Home.css'
 import Hero from '../../components/Hero/Hero.jsx'
 import Features from '../../components/Features/Features.jsx'
@@ -11,8 +12,10 @@ import {
     newsletterContent,
 } from '../../utils/siteContent.js'
 
-function Home({ courses, isLoading, error }) {
+function Home() {
     const location = useLocation()
+    const { items: courses, status, error } = useSelector((state) => state.courses)
+    const isLoading = status === 'idle' || status === 'loading'
 
     useEffect(() => {
         if (location.hash === '#kategori') {
