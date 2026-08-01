@@ -30,3 +30,4 @@ docs/superpowers/
 # Kredensial DB backend & bukti uji coba lokal
 server/.env
 screenshots/
+uploads/

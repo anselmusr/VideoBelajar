@@ -101,11 +101,14 @@ Prinsip pemilihan tipe data (berlaku ke semua tabel):
 |---|---|---|
 | `id` | `BIGINT` identity, **PK** | Auto-increment 8 byte; aman dari overflow seiring pertumbuhan user. |
 | `full_name` | `VARCHAR(100)` | Nama orang realistis < 100 karakter; batas mencegah input sampah. |
+| `username` | `VARCHAR(50)`, nullable | **misi Backend Advance 1**: identitas register/login; nullable karena user lama dari alur mockapi belum punya username. |
 | `email` | `VARCHAR(255)` | 255 = batas praktis panjang email (RFC 5321); dipakai login. |
 | `phone` | `VARCHAR(20)` | Disimpan sebagai teks, bukan angka: ada awalan `+62`/`0` yang hilang jika numerik, dan nomor telepon tidak pernah dihitung aritmetika. E.164 maks 15 digit + kode negara. |
 | `password_hash` | `VARCHAR(255)` | Menyimpan hash (bcrypt ± 60 karakter), bukan password asli; 255 memberi ruang untuk algoritma hash masa depan. |
 | `role` | `VARCHAR(10)` + `CHECK` | Hanya `student`/`admin` (login admin sudah ada di aplikasi); 10 karakter cukup. |
 | `avatar_url` | `TEXT`, nullable | Panjang URL tak terprediksi; opsional. |
+| `verification_token` | `VARCHAR(36)`, nullable | **misi Backend Advance 1**: token uuid v4 yang dikirim via email saat register; di-NULL-kan setelah verifikasi berhasil. |
+| `email_verified_at` | `TIMESTAMP`, nullable | **misi Backend Advance 1**: NULL = belum verifikasi; terisi waktu verifikasi (lebih informatif daripada boolean). |
 | `created_at`, `updated_at` | `TIMESTAMPTZ` | Jejak waktu berbasis UTC, sadar zona waktu. |
 
 **Indexing `users`:**
@@ -114,6 +117,7 @@ Prinsip pemilihan tipe data (berlaku ke semua tabel):
 |---|---|---|---|
 | `users_pkey` | `id` | Unique single (B-Tree, otomatis dari PK) | Lookup user by id di seluruh join. |
 | `uq_users_email` | `email` | **Unique single index** | Login mencari `WHERE email = ?` di tiap autentikasi — tanpa index ini jadi full table scan; unique sekaligus menegakkan aturan "email sudah terdaftar" yang kini dicek manual di form register. |
+| `uq_users_username` | `username` | **Unique single index** (misi Backend Advance 1) | Cegah username ganda saat register; NULL diperbolehkan berulang untuk user legacy. |
 
 ### 3.2 `categories` — Kategori Kelas
 

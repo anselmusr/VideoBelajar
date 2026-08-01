@@ -1,6 +1,9 @@
 import express from 'express'
 import * as courses from './courses.service.js'
 import * as users from './users.service.js'
+import * as auth from './auth.service.js'
+import { verifyToken } from './auth.middleware.js'
+import { uploadImage, UPLOAD_DIR } from './upload.service.js'
 
 const app = express()
 app.use(express.json())
@@ -20,7 +23,7 @@ function crudRouter(service) {
   const router = express.Router()
 
   router.get('/', async (req, res) => {
-    res.json(await service.getAll())
+    res.json(await service.getAll(req.query))
   })
 
   router.get('/:id', async (req, res) => {
@@ -53,13 +56,46 @@ function crudRouter(service) {
 app.get('/', (req, res) => {
   res.json({
     service: 'EduCourse REST API',
-    endpoints: ['GET /course', 'GET /course/:id', 'POST /course', 'PUT|PATCH /course/:id', 'DELETE /course/:id'],
+    auth: ['POST /register', 'POST /login', 'GET /verify-email?token=', 'POST /upload (Bearer token)'],
+    courses: 'GET /course?category=&search=&sortBy= (Bearer token) — alias publik: /courses',
   })
 })
 
-// /course sesuai tabel endpoint misi; /courses agar kompatibel dengan
-// frontend yang sudah ada (paritas resource mockapi.io)
-app.use(['/course', '/courses'], crudRouter(courses))
+// ---------- misi Backend Advance 1: autentikasi ----------
+app.post('/register', async (req, res) => {
+  const { status, body } = await auth.register(req.body)
+  res.status(status).json(body)
+})
+
+app.post('/login', async (req, res) => {
+  const { status, body } = await auth.login(req.body)
+  res.status(status).json(body)
+})
+
+app.get('/verify-email', async (req, res) => {
+  const token = Array.isArray(req.query.token) ? req.query.token[0] : req.query.token
+  const { status, body } = await auth.verifyEmail(token)
+  res.status(status).json(body)
+})
+
+// ---------- misi Backend Advance 1: upload image (multer) ----------
+app.post('/upload', verifyToken, (req, res) => {
+  uploadImage(req, res, (err) => {
+    if (err) return res.status(400).json({ message: err.message })
+    if (!req.file) return res.status(400).json({ message: "File gambar wajib dikirim di field 'file'." })
+    res.status(201).json({
+      message: 'Upload berhasil.',
+      filename: req.file.filename,
+      url: `/uploads/${req.file.filename}`,
+    })
+  })
+})
+app.use('/uploads', express.static(UPLOAD_DIR))
+
+// /course (singular, tabel endpoint misi) dilindungi middleware verifyToken;
+// /courses (plural) tetap publik sebagai paritas mockapi.io untuk frontend.
+app.use('/course', verifyToken, crudRouter(courses))
+app.use('/courses', crudRouter(courses))
 app.use(['/user', '/users'], crudRouter(users))
 
 const CLIENT_DATA_ERRORS = [

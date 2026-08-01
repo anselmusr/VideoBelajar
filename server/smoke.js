@@ -1,5 +1,6 @@
 // Cek CRUD penuh REST API terhadap MySQL: node server/smoke.js
 // (server harus sudah jalan: npm run server)
+// Memakai alias publik /courses; permukaan ber-JWT /course diuji di smoke-auth.js
 const BASE = process.env.API_URL ?? 'http://localhost:3001'
 
 const assert = (cond, msg) => {
@@ -30,8 +31,8 @@ const payload = {
 }
 
 // INSERT
-const created = (await req('POST', '/course', payload)).data
-assert(created?.id, 'POST /course mengembalikan id')
+const created = (await req('POST', '/courses', payload)).data
+assert(created?.id, 'POST /courses mengembalikan id')
 assert(created.title === payload.title && created.category === 'business', 'POST round-trip data')
 assert(created.rating === 4.5 && created.imageId === 2, 'tipe angka ikut kembali utuh')
 
@@ -40,16 +41,16 @@ const all = (await req('GET', '/courses')).data
 assert(Array.isArray(all) && all.some((c) => c.id === created.id), 'GET /courses memuat data baru')
 
 // SELECT by id
-const one = (await req('GET', `/course/${created.id}`)).data
+const one = (await req('GET', `/courses/${created.id}`)).data
 assert(one.instructor === 'Tester', 'GET /course/:id')
 
 // UPDATE by id
-const updated = (await req('PUT', `/course/${created.id}`, { ...created, title: 'Updated Course', price: 200000 })).data
+const updated = (await req('PUT', `/courses/${created.id}`, { ...created, title: 'Updated Course', price: 200000 })).data
 assert(updated.title === 'Updated Course' && updated.price === 200000, 'PUT /course/:id mengubah data')
 
 // DELETE by id
-const deleted = (await req('DELETE', `/course/${created.id}`)).data
+const deleted = (await req('DELETE', `/courses/${created.id}`)).data
 assert(deleted.id === created.id, 'DELETE /course/:id')
-assert((await req('GET', `/course/${created.id}`)).status === 404, '404 setelah delete')
+assert((await req('GET', `/courses/${created.id}`)).status === 404, '404 setelah delete')
 
 console.log('SMOKE OK — SELECT / INSERT / UPDATE / DELETE /course semua berhasil')

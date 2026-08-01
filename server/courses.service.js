@@ -22,9 +22,41 @@ function toCourse(row) {
   }
 }
 
-// SELECT semua data (SELECT *)
-export async function getAll() {
-  const [rows] = await pool.query(`${COURSE_SELECT} ORDER BY c.id`)
+// Whitelist sortBy -> ORDER BY (kunci berasal dari query string, jangan
+// pernah menyisipkan nilainya langsung ke SQL).
+const SORTS = {
+  newest: 'c.created_at DESC',
+  oldest: 'c.created_at ASC',
+  title: 'c.title ASC',
+  price: 'c.price ASC',
+  'price:desc': 'c.price DESC',
+  rating: 'c.rating_avg DESC',
+  reviews: 'c.review_count DESC',
+}
+
+// SELECT semua data + query params misi Backend Advance 1:
+// filter (?category= / ?topic=), search (?search=), sort (?sortBy=)
+export async function getAll(query = {}) {
+  // query param bisa jadi array kalau key-nya berulang (?category=a&category=b) —
+  // ambil nilai pertama supaya tidak masuk sebagai array ke SQL placeholder.
+  const first = (v) => (Array.isArray(v) ? v[0] : v)
+  const where = []
+  const params = []
+  const topic = first(query.category ?? query.topic)
+  if (topic) {
+    where.push('cat.slug = ?')
+    params.push(topic)
+  }
+  const search = first(query.search)
+  if (search) {
+    where.push('(c.title LIKE ? OR c.description LIKE ?)')
+    params.push(`%${search}%`, `%${search}%`)
+  }
+  // Object.hasOwn: hindari key warisan prototype (constructor/__proto__) yang truthy
+  const sortKey = first(query.sortBy)
+  const orderBy = Object.hasOwn(SORTS, sortKey) ? SORTS[sortKey] : 'c.id'
+  const sql = `${COURSE_SELECT}${where.length ? ` WHERE ${where.join(' AND ')}` : ''} ORDER BY ${orderBy}`
+  const [rows] = await pool.query(sql, params)
   return rows.map(toCourse)
 }
 

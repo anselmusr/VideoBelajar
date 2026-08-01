@@ -35,21 +35,27 @@ CREATE TABLE tutors (
 CREATE INDEX idx_tutors_full_name ON tutors (full_name);
 
 CREATE TABLE users (
-  id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-  full_name      VARCHAR(100) NOT NULL,
-  email          VARCHAR(255) NOT NULL,
-  phone          VARCHAR(20)  NOT NULL,
-  password_hash  VARCHAR(255) NOT NULL,
-  role           VARCHAR(10)  NOT NULL DEFAULT 'student'
-                 CHECK (role IN ('student', 'admin')),
-  avatar_url     TEXT,
-  created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-                 ON UPDATE CURRENT_TIMESTAMP
+  id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
+  full_name          VARCHAR(100) NOT NULL,
+  username           VARCHAR(50),                  -- misi Backend Advance 1: login/register by username
+  email              VARCHAR(255) NOT NULL,
+  phone              VARCHAR(20)  NOT NULL DEFAULT '',
+  password_hash      VARCHAR(255) NOT NULL,        -- bcrypt hash (misi Backend Advance 1)
+  role               VARCHAR(10)  NOT NULL DEFAULT 'student'
+                     CHECK (role IN ('student', 'admin')),
+  avatar_url         TEXT,
+  verification_token VARCHAR(36),                  -- uuid verifikasi email, NULL setelah verified
+  email_verified_at  TIMESTAMP NULL DEFAULT NULL,
+  created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                     ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Unique single index: login & cek duplikat saat register (WHERE email = ?).
 CREATE UNIQUE INDEX uq_users_email ON users (email);
+
+-- Unique single index: cegah username ganda (NULL boleh utk user legacy).
+CREATE UNIQUE INDEX uq_users_username ON users (username);
 
 -- ---------- Katalog kelas ----------
 

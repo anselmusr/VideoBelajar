@@ -63,6 +63,40 @@ Endpoint (tersedia sebagai `/course` maupun `/courses`, plus `/user`/`/users`):
 
 Cek cepat seluruh operasi CRUD (server harus jalan): `node server/smoke.js`.
 
+## Backend Advance 1 (Auth JWT, Email, Upload, Query Params)
+
+Lanjutan backend di `server/` — autentikasi bcrypt + JWT, verifikasi email,
+query params, dan upload gambar:
+
+| Endpoint | Method | Keterangan |
+| --- | --- | --- |
+| `/register` | POST | Daftar user baru `{fullname, username, password, email}`; password di-hash bcrypt, token verifikasi dikirim via email |
+| `/login` | POST | Login `{email, password}` → `{token}` JWT (401 bila salah) |
+| `/verify-email?token=` | GET | Verifikasi token dari email (sekali pakai) |
+| `/course?category=&search=&sortBy=` | GET | List kelas + filter/search/sort — **butuh header `Authorization: Bearer <token>`** |
+| `/upload` | POST | Upload gambar (multipart field `file`, maks 2MB) ke folder `uploads/` — butuh Bearer token |
+
+Catatan:
+
+- `sortBy`: `newest`, `oldest`, `title`, `price`, `price:desc`, `rating`, `reviews`.
+- Endpoint `/course` (singular) dilindungi middleware JWT (`server/auth.middleware.js`);
+	alias `/courses` (plural) tetap publik supaya frontend versi mockapi tidak berubah.
+- Migrasi kolom user: `docs/database/migration-backend-advance-1-users-auth.sql`
+	(username unik, `verification_token`, `email_verified_at`).
+- Env tambahan di `server/.env`: `JWT_SECRET` (wajib), `APP_URL`, dan `SMTP_*`
+	opsional — tanpa SMTP, email verifikasi memakai akun uji [Ethereal](https://ethereal.email)
+	dan preview URL-nya muncul di log server + respons register.
+- Uji end-to-end seluruh fitur: `node --env-file-if-exists=server/.env server/smoke-auth.js`.
+
+> **Dua alur akun berbeda (sengaja).** Endpoint misi `/register` + `/login`
+> menyimpan password sebagai **hash bcrypt** dan memverifikasi di server (JWT).
+> Sementara frontend versi mockapi memakai `/users` + perbandingan password di
+> sisi client (plaintext) sebagai paritas mockapi. Keduanya berbagi tabel `users`
+> tapi **tidak saling interoperable**: akun yang dibuat lewat `/register` tidak
+> bisa login di UI web, dan sebaliknya. Ini konsekuensi menjaga frontend lama
+> tetap jalan tanpa perubahan; untuk menyatukannya, frontend perlu dipindah ke
+> alur `/login` (JWT).
+
 ## Fitur yang Sudah Tersedia
 
 - Landing page responsif dengan section Hero, Features (kategori course), dan Newsletter CTA.
