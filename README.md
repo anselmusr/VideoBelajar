@@ -13,6 +13,7 @@ VideoBelajar adalah platform pembelajaran video berbasis web yang memberi penggu
 - ESLint
 - Axios
 - mockapi.io (fake REST API)
+- Express + MySQL (`server/` — REST API misi Backend Intermediate)
 
 ## Setup API (mockapi.io)
 
@@ -28,6 +29,39 @@ Data kelas dan pengguna disimpan di [mockapi.io](https://mockapi.io/).
 3. Jalankan `npm install` lalu `npm run dev`.
 
 Catatan: untuk deploy (Vercel), set env var `VITE_API_BASE_URL` di dashboard project. Password user tersimpan apa adanya di mockapi (kebutuhan tugas) — jangan gunakan password sungguhan.
+
+## Backend Lokal (Express + MySQL)
+
+Alternatif mockapi.io: REST API sendiri di `server/` yang terhubung ke MySQL
+(skema dari `docs/database/schema.mysql.sql`, terjemahan MySQL dari desain ERD
+misi sebelumnya).
+
+1. Siapkan MySQL 8.x, lalu buat database + tabel:
+
+	```bash
+	mysql -u root -p < docs/database/schema.mysql.sql
+	```
+
+2. Salin `server/.env.example` menjadi `server/.env`, sesuaikan host, username,
+	password, port, dan database name.
+3. Jalankan API: `npm run server` (default `http://localhost:3001`).
+4. Arahkan frontend ke API lokal di `.env.local`:
+
+	```
+	VITE_API_BASE_URL=http://localhost:3001
+	```
+
+Endpoint (tersedia sebagai `/course` maupun `/courses`, plus `/user`/`/users`):
+
+| Endpoint | Method | Keterangan |
+| --- | --- | --- |
+| `/course` | GET | List semua courses/kelas |
+| `/course/:id` | GET | Menampilkan satu course berdasarkan id |
+| `/course` | POST | Menambahkan course |
+| `/course/:id` | PUT/PATCH | Mengubah course berdasarkan id |
+| `/course/:id` | DELETE | Menghapus course berdasarkan id |
+
+Cek cepat seluruh operasi CRUD (server harus jalan): `node server/smoke.js`.
 
 ## Fitur yang Sudah Tersedia
 

@@ -26,3 +26,7 @@ dist-ssr
 # Local planning docs (not committed)
 docs/superpowers/
 .superpowers/
+
+# Kredensial DB backend & bukti uji coba lokal
+server/.env
+screenshots/

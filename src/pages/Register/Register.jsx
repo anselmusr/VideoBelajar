@@ -133,7 +133,7 @@ function Register() {
       await addUser({
         fullName: formData.fullName.trim(),
         email: formData.email.trim(),
-        phone: `${selectedCountry.dialCode}${formData.phoneNumber.trim()}`,
+        phone: `${selectedCountry.dialCode}${formData.phoneNumber.replace(/\D/g, '')}`,
         password: formData.password,
       })
       navigate('/login', { state: { registered: true } })
