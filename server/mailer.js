@@ -1,5 +1,12 @@
 import nodemailer from 'nodemailer'
 
+// Gagal saat boot, bukan diam-diam saat kirim: kalau produksi jatuh ke Ethereal,
+// email verifikasi tak pernah sampai ke user sementara register tetap membalas
+// 201, sehingga setiap akun yang mendaftar terkunci selamanya di login 403.
+if (process.env.NODE_ENV === 'production' && !process.env.SMTP_HOST) {
+  throw new Error('SMTP_HOST wajib diset di produksi (fallback Ethereal hanya untuk dev).')
+}
+
 // Pakai SMTP dari env kalau ada; kalau tidak, otomatis buat akun uji Ethereal
 // (email tidak benar-benar terkirim keluar, tapi bisa dibuka lewat preview URL
 // yang di-log — cocok untuk demo misi tanpa kredensial SMTP sungguhan).
@@ -47,7 +54,8 @@ const escapeHtml = (s) =>
 // Kirim token verifikasi; mengembalikan preview URL saat memakai Ethereal.
 export async function sendVerificationEmail({ to, fullname, token }) {
   const { transporter, isTest } = await getTransporter()
-  const base = process.env.APP_URL ?? 'http://localhost:3001'
+  // APP_URL = origin frontend (halaman React /verify-email), bukan API
+  const base = process.env.APP_URL ?? 'http://localhost:5173'
   const link = `${base}/verify-email?token=${encodeURIComponent(token)}`
   const safeName = escapeHtml(fullname)
   const safeLink = escapeHtml(link)

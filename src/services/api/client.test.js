@@ -11,4 +11,11 @@ describe('normalizeApiError', () => {
     const error = { message: 'Network Error' }
     expect(normalizeApiError(error).message).toBe('Tidak dapat terhubung ke server. Periksa koneksimu.')
   })
+
+  it('meneruskan pesan + status dari server bila ada', () => {
+    const error = { response: { status: 403, data: { message: 'Email belum diverifikasi.' } } }
+    const normalized = normalizeApiError(error)
+    expect(normalized.message).toBe('Email belum diverifikasi.')
+    expect(normalized.status).toBe(403)
+  })
 })

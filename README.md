@@ -28,7 +28,12 @@ Data kelas dan pengguna disimpan di [mockapi.io](https://mockapi.io/).
 
 3. Jalankan `npm install` lalu `npm run dev`.
 
-Catatan: untuk deploy (Vercel), set env var `VITE_API_BASE_URL` di dashboard project. Password user tersimpan apa adanya di mockapi (kebutuhan tugas) — jangan gunakan password sungguhan.
+Catatan: untuk deploy (Vercel), set env var `VITE_API_BASE_URL` di dashboard project.
+
+> **Update:** sejak misi Backend Advance 1, form Register/Login web memakai
+> endpoint `/register` + `/login` (bcrypt + JWT + verifikasi email) dari backend
+> Express di `server/` — mockapi.io hanya cocok untuk katalog kelas. Arahkan
+> `VITE_API_BASE_URL` ke backend Express agar seluruh fitur jalan.
 
 ## Backend Lokal (Express + MySQL)
 
@@ -70,8 +75,8 @@ query params, dan upload gambar:
 
 | Endpoint | Method | Keterangan |
 | --- | --- | --- |
-| `/register` | POST | Daftar user baru `{fullname, username, password, email}`; password di-hash bcrypt, token verifikasi dikirim via email |
-| `/login` | POST | Login `{email, password}` → `{token}` JWT (401 bila salah) |
+| `/register` | POST | Daftar user baru `{fullname, password, email}` (+`username`/`phone` opsional; username default dari local-part email); password di-hash bcrypt, token verifikasi dikirim via email. Mendaftar ulang dengan email yang **belum terverifikasi** membalas 200 dan mengirim ulang tautannya (email yang sudah terverifikasi tetap 409) |
+| `/login` | POST | Login `{email, password}` → `{token, user}` JWT — 401 bila salah, 403 bila email belum diverifikasi |
 | `/verify-email?token=` | GET | Verifikasi token dari email (sekali pakai) |
 | `/course?category=&search=&sortBy=` | GET | List kelas + filter/search/sort — **butuh header `Authorization: Bearer <token>`** |
 | `/upload` | POST | Upload gambar (multipart field `file`, maks 2MB) ke folder `uploads/` — butuh Bearer token |
@@ -83,19 +88,41 @@ Catatan:
 	alias `/courses` (plural) tetap publik supaya frontend versi mockapi tidak berubah.
 - Migrasi kolom user: `docs/database/migration-backend-advance-1-users-auth.sql`
 	(username unik, `verification_token`, `email_verified_at`).
-- Env tambahan di `server/.env`: `JWT_SECRET` (wajib), `APP_URL`, dan `SMTP_*`
-	opsional — tanpa SMTP, email verifikasi memakai akun uji [Ethereal](https://ethereal.email)
-	dan preview URL-nya muncul di log server + respons register.
+- **Punya database lama?** Akun yang dibuat sebelum misi ini menyimpan password
+	apa adanya, sehingga selalu ditolak `bcrypt.compare` (401 walau password benar).
+	Jalankan sekali: `node --env-file-if-exists=server/.env server/migrate-legacy-users.js`
+	— password lama di-hash bcrypt dan akunnya ditandai terverifikasi. Aman diulang.
+- Env tambahan di `server/.env`: `JWT_SECRET` (wajib), `APP_URL` (origin
+	frontend — tautan email mengarah ke halaman `/verify-email` React), dan
+	`SMTP_*` — tanpa SMTP, email verifikasi memakai akun uji
+	[Ethereal](https://ethereal.email) dan preview URL-nya dicetak di **log server**
+	(sengaja tidak dikembalikan lewat HTTP: siapa pun yang memegang URL itu bisa
+	membaca emailnya dan memverifikasi alamat milik orang lain). Di produksi
+	(`NODE_ENV=production`) server menolak start bila `SMTP_HOST` kosong, supaya
+	deploy yang lupa mengisi SMTP gagal terang-terangan alih-alih diam-diam
+	mengirim email semua user ke kotak sekali pakai.
 - Uji end-to-end seluruh fitur: `node --env-file-if-exists=server/.env server/smoke-auth.js`.
 
-> **Dua alur akun berbeda (sengaja).** Endpoint misi `/register` + `/login`
-> menyimpan password sebagai **hash bcrypt** dan memverifikasi di server (JWT).
-> Sementara frontend versi mockapi memakai `/users` + perbandingan password di
-> sisi client (plaintext) sebagai paritas mockapi. Keduanya berbagi tabel `users`
-> tapi **tidak saling interoperable**: akun yang dibuat lewat `/register` tidak
-> bisa login di UI web, dan sebaliknya. Ini konsekuensi menjaga frontend lama
-> tetap jalan tanpa perubahan; untuk menyatukannya, frontend perlu dipindah ke
-> alur `/login` (JWT).
+### Alur akun di web
+
+Form **Register** dan **Login** web memakai endpoint backend ini (bukan lagi
+`/users` gaya mockapi): daftar → server kirim email verifikasi → login ditolak
+403 sampai tautan di email dibuka (halaman `/verify-email`) → login berhasil dan
+data user disimpan sebagai sesi di localStorage. Konsekuensinya frontend butuh
+backend ini berjalan (`VITE_API_BASE_URL` menunjuk ke sana).
+
+Catatan desain:
+
+- JWT dari `/login` **tidak** ikut disimpan. Belum ada request frontend yang
+	mengirim header `Authorization`, jadi menyimpannya hanya menaruh kredensial
+	berumur 1 hari di localStorage tanpa manfaat. Saat nanti ada permintaan yang
+	butuh token, simpan di memori (bukan localStorage).
+- Panel admin (`/admin` → Data Pengguna) menulis ke tabel `users` yang sama.
+	Password yang diisi di situ ikut di-hash bcrypt dan user barunya tetap
+	menerima email verifikasi — jadi `POST /users` tidak bisa dipakai sebagai
+	jalan pintas melewati verifikasi. Saat mengedit user, kolom kata sandi boleh
+	dikosongkan untuk mempertahankan password lama (hash-nya tidak pernah
+	dikirim ke browser).
 
 ## Fitur yang Sudah Tersedia
 

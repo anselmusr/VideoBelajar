@@ -13,7 +13,7 @@ app.use((req, res, next) => {
   res.set({
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   })
   if (req.method === 'OPTIONS') return res.sendStatus(204)
   next()
@@ -28,7 +28,7 @@ function crudRouter(service) {
 
   router.get('/:id', async (req, res) => {
     const row = await service.getById(req.params.id)
-    if (!row) return res.status(404).json({ error: 'Data tidak ditemukan.' })
+    if (!row) return res.status(404).json({ message: 'Data tidak ditemukan.' })
     res.json(row)
   })
 
@@ -38,7 +38,7 @@ function crudRouter(service) {
 
   const update = async (req, res) => {
     const row = await service.update(req.params.id, req.body)
-    if (!row) return res.status(404).json({ error: 'Data tidak ditemukan.' })
+    if (!row) return res.status(404).json({ message: 'Data tidak ditemukan.' })
     res.json(row)
   }
   router.put('/:id', update)
@@ -46,7 +46,7 @@ function crudRouter(service) {
 
   router.delete('/:id', async (req, res) => {
     const row = await service.remove(req.params.id)
-    if (!row) return res.status(404).json({ error: 'Data tidak ditemukan.' })
+    if (!row) return res.status(404).json({ message: 'Data tidak ditemukan.' })
     res.json(row)
   })
 
@@ -103,12 +103,20 @@ const CLIENT_DATA_ERRORS = [
   'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD', 'ER_CHECK_CONSTRAINT_VIOLATED',
 ]
 
+// Semua respons memakai key `message` (dibaca normalizeApiError di frontend).
+// sqlMessage mentah sengaja hanya masuk log server: isinya nama tabel, nama
+// index, dan alamat email — detail skema yang tak perlu sampai ke browser.
 app.use((err, req, res, _next) => {
-  console.error('[server]', err.code ?? '', err.message)
-  const status = err.code === 'ER_DUP_ENTRY' ? 409
+  console.error('[server]', err.code ?? '', err.sqlMessage ?? err.message)
+  const status = err.status ?? (err.code === 'ER_DUP_ENTRY' ? 409
     : CLIENT_DATA_ERRORS.includes(err.code) ? 400
-    : 500
-  res.status(status).json({ error: err.sqlMessage ?? err.message })
+    : 500)
+  res.status(status).json({
+    message: err.status ? err.message // pesan yang memang kita tulis sendiri
+      : status === 409 ? 'Data sudah terdaftar.'
+      : status === 400 ? 'Data yang dikirim tidak valid atau terlalu panjang.'
+      : 'Terjadi kesalahan di server. Coba lagi nanti.',
+  })
 })
 
 const port = Number(process.env.PORT ?? 3001)

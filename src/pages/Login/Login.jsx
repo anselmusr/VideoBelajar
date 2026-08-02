@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FcGoogle } from 'react-icons/fc'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { isAdminCredentials } from '../../utils/adminAuth.js'
-import { getUsers } from '../../services/api/users.js'
+import { loginUser } from '../../services/api/auth.js'
 import './Login.css'
 
 function Login({ onAdminLogin, onUserLogin }) {
@@ -15,7 +15,7 @@ function Login({ onAdminLogin, onUserLogin }) {
   const navigate = useNavigate()
   const location = useLocation()
   const registeredMessage = location.state?.registered
-    ? 'Pendaftaran berhasil. Silakan masuk.'
+    ? 'Pendaftaran berhasil. Cek email kamu untuk tautan verifikasi sebelum masuk.'
     : ''
 
   const handleLoginSubmit = async (event) => {
@@ -28,17 +28,15 @@ function Login({ onAdminLogin, onUserLogin }) {
     }
     setIsSubmitting(true)
     try {
-      const users = await getUsers()
-      const match = users.find(
-        (user) =>
-          user.email?.toLowerCase() === email.trim().toLowerCase() && user.password === password,
-      )
-      if (!match) {
-        setError('Email atau kata sandi salah.')
-        return
-      }
+      // JWT-nya sengaja tidak disimpan: tidak ada permintaan frontend yang
+      // memakainya, jadi menyimpannya hanya menaruh kredensial 1 hari di
+      // localStorage tanpa manfaat. Ambil lagi dari respons login saat dibutuhkan.
+      const { user } = await loginUser({ email: email.trim(), password })
+      // backend versi lama membalas 200 tanpa `user`; tanpa penjagaan ini
+      // TypeError-nya tampil mentah sebagai pesan error di form login
+      if (!user) throw new Error('Respons login tidak valid. Coba lagi nanti.')
       setError('')
-      onUserLogin({ id: match.id, fullName: match.fullName, email: match.email })
+      onUserLogin({ id: user.id, fullName: user.fullname, email: user.email })
       navigate('/')
     } catch (err) {
       setError(err.message)

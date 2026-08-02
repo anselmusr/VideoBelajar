@@ -1,0 +1,5 @@
+/* Tautan aksi di kartu verifikasi — di luar form login, jadi perlu lebar penuh */
+.verify-action {
+  width: 100%;
+  margin-top: 8px;
+}

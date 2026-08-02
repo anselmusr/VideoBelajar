@@ -10,9 +10,10 @@ vi.mock('../services/api/users.js', () => ({
   deleteUser: vi.fn(),
 }))
 
+// API tidak pernah mengirim password/hash kembali ke client
 const sampleUsers = [
-  { id: '1', fullName: 'Ana Pratiwi', email: 'ana@mail.com', phone: '+62811111111', password: 'rahasia1' },
-  { id: '2', fullName: 'Budi Santoso', email: 'budi@mail.com', phone: '+62822222222', password: 'rahasia2' },
+  { id: '1', fullName: 'Ana Pratiwi', email: 'ana@mail.com', phone: '+62811111111' },
+  { id: '2', fullName: 'Budi Santoso', email: 'budi@mail.com', phone: '+62822222222' },
 ]
 
 async function renderReadyHook() {

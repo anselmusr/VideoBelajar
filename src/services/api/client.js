@@ -6,7 +6,13 @@ export const apiClient = axios.create({
 
 export function normalizeApiError(error) {
   if (error.response) {
-    return new Error(`Permintaan gagal (${error.response.status}). Coba lagi.`)
+    // pakai pesan dari server (backend Express mengirim { message }) bila ada
+    const serverMessage = error.response.data?.message
+    const normalized = new Error(
+      serverMessage || `Permintaan gagal (${error.response.status}). Coba lagi.`,
+    )
+    normalized.status = error.response.status
+    return normalized
   }
   return new Error('Tidak dapat terhubung ke server. Periksa koneksimu.')
 }

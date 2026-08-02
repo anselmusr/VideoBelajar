@@ -1,11 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import * as usersApi from '../../services/api/users.js'
+import * as authApi from '../../services/api/auth.js'
 import Login from './Login.jsx'
 
-vi.mock('../../services/api/users.js', () => ({
-  getUsers: vi.fn(),
+vi.mock('../../services/api/auth.js', () => ({
+  loginUser: vi.fn(),
 }))
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }))
@@ -30,8 +30,10 @@ function fillForm(email, password) {
   fireEvent.change(screen.getByLabelText(/^Kata Sandi/), { target: { value: password } })
 }
 
+const apiError = (message, status) => Object.assign(new Error(message), { status })
+
 describe('Login submit', () => {
-  it('login admin memanggil onAdminLogin, navigate ke /admin, tanpa memanggil getUsers', async () => {
+  it('login admin memanggil onAdminLogin, navigate ke /admin, tanpa memanggil API', async () => {
     const onAdminLogin = vi.fn()
     const onUserLogin = vi.fn()
     render(<Login onAdminLogin={onAdminLogin} onUserLogin={onUserLogin} />, {
@@ -41,44 +43,67 @@ describe('Login submit', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Masuk' }))
     await waitFor(() => expect(onAdminLogin).toHaveBeenCalled())
     expect(navigateMock).toHaveBeenCalledWith('/admin')
-    expect(usersApi.getUsers).not.toHaveBeenCalled()
+    expect(authApi.loginUser).not.toHaveBeenCalled()
   })
 
-  it('login user cocok via API memanggil onUserLogin tanpa password lalu navigate ke /', async () => {
-    usersApi.getUsers.mockResolvedValue([
-      { id: '1', fullName: 'Ana Pratiwi', email: 'ana@mail.com', password: 'rahasia1' },
-    ])
-    const onAdminLogin = vi.fn()
-    const onUserLogin = vi.fn()
-    render(<Login onAdminLogin={onAdminLogin} onUserLogin={onUserLogin} />, {
-      wrapper: MemoryRouter,
+  it('login sukses menyimpan data user (tanpa JWT) lalu navigate ke /', async () => {
+    authApi.loginUser.mockResolvedValue({
+      message: 'Login berhasil.',
+      token: 'jwt-token',
+      user: { id: 1, fullname: 'Ana Pratiwi', username: 'ana', email: 'ana@mail.com' },
     })
+    const onUserLogin = vi.fn()
+    render(<Login onAdminLogin={vi.fn()} onUserLogin={onUserLogin} />, { wrapper: MemoryRouter })
     fillForm('ana@mail.com', 'rahasia1')
     fireEvent.click(screen.getByRole('button', { name: 'Masuk' }))
+    // token tidak ikut disimpan: tidak ada request frontend yang memakainya
     await waitFor(() =>
       expect(onUserLogin).toHaveBeenCalledWith({
-        id: '1',
+        id: 1,
         fullName: 'Ana Pratiwi',
         email: 'ana@mail.com',
       }),
     )
+    expect(authApi.loginUser).toHaveBeenCalledWith({ email: 'ana@mail.com', password: 'rahasia1' })
     expect(navigateMock).toHaveBeenCalledWith('/')
   })
 
-  it('password salah menampilkan error tanpa memanggil onUserLogin', async () => {
-    usersApi.getUsers.mockResolvedValue([
-      { id: '1', fullName: 'Ana Pratiwi', email: 'ana@mail.com', password: 'rahasia1' },
-    ])
+  it('respons 200 tanpa data user ditolak, tidak menulis sesi', async () => {
+    // bentuk respons backend versi lama: { message, token } tanpa user
+    authApi.loginUser.mockResolvedValue({ message: 'Login berhasil.', token: 'jwt-token' })
+    const onUserLogin = vi.fn()
+    render(<Login onAdminLogin={vi.fn()} onUserLogin={onUserLogin} />, { wrapper: MemoryRouter })
+    fillForm('ana@mail.com', 'rahasia1')
+    fireEvent.click(screen.getByRole('button', { name: 'Masuk' }))
+    expect(await screen.findByText('Respons login tidak valid. Coba lagi nanti.')).toBeTruthy()
+    expect(onUserLogin).not.toHaveBeenCalled()
+    expect(navigateMock).not.toHaveBeenCalled()
+  })
+
+  it('kredensial salah (401) menampilkan pesan server tanpa memanggil onUserLogin', async () => {
+    authApi.loginUser.mockRejectedValue(apiError('Email atau password yang dimasukkan salah.', 401))
     const onUserLogin = vi.fn()
     render(<Login onAdminLogin={vi.fn()} onUserLogin={onUserLogin} />, { wrapper: MemoryRouter })
     fillForm('ana@mail.com', 'salah')
     fireEvent.click(screen.getByRole('button', { name: 'Masuk' }))
-    expect(await screen.findByText('Email atau kata sandi salah.')).toBeTruthy()
+    expect(await screen.findByText('Email atau password yang dimasukkan salah.')).toBeTruthy()
     expect(onUserLogin).not.toHaveBeenCalled()
   })
 
-  it('menampilkan pesan error API saat getUsers gagal', async () => {
-    usersApi.getUsers.mockRejectedValue(
+  it('akun belum verifikasi (403) menampilkan pesan verifikasi', async () => {
+    authApi.loginUser.mockRejectedValue(
+      apiError('Email belum diverifikasi. Cek inbox kamu untuk tautan verifikasi.', 403),
+    )
+    render(<Login onAdminLogin={vi.fn()} onUserLogin={vi.fn()} />, { wrapper: MemoryRouter })
+    fillForm('ana@mail.com', 'rahasia1')
+    fireEvent.click(screen.getByRole('button', { name: 'Masuk' }))
+    expect(
+      await screen.findByText('Email belum diverifikasi. Cek inbox kamu untuk tautan verifikasi.'),
+    ).toBeTruthy()
+  })
+
+  it('menampilkan pesan koneksi saat API tidak terjangkau', async () => {
+    authApi.loginUser.mockRejectedValue(
       new Error('Tidak dapat terhubung ke server. Periksa koneksimu.'),
     )
     render(<Login onAdminLogin={vi.fn()} onUserLogin={vi.fn()} />, { wrapper: MemoryRouter })
@@ -89,12 +114,14 @@ describe('Login submit', () => {
     ).toBeTruthy()
   })
 
-  it('menampilkan pesan sukses pendaftaran saat location.state.registered true', () => {
+  it('menampilkan pesan cek email saat state.registered true', () => {
     render(
       <MemoryRouter initialEntries={[{ pathname: '/login', state: { registered: true } }]}>
         <Login onAdminLogin={vi.fn()} onUserLogin={vi.fn()} />
       </MemoryRouter>,
     )
-    expect(screen.getByText('Pendaftaran berhasil. Silakan masuk.')).toBeTruthy()
+    expect(
+      screen.getByText(/Pendaftaran berhasil\. Cek email kamu untuk tautan verifikasi/),
+    ).toBeTruthy()
   })
 })

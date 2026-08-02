@@ -8,7 +8,9 @@ function validateDraft(draft, users, editingId) {
   const errors = {}
   if (!draft.fullName.trim()) errors.fullName = 'Nama lengkap wajib diisi.'
   if (!draft.email.trim()) errors.email = 'E-Mail wajib diisi.'
-  if (!draft.password.trim()) errors.password = 'Kata sandi wajib diisi.'
+  // Saat edit, password kosong berarti "jangan diubah" — hash lamanya tidak
+  // pernah dikirim ke client jadi tidak bisa ikut disubmit ulang.
+  if (!editingId && !draft.password.trim()) errors.password = 'Kata sandi wajib diisi.'
   const email = draft.email.trim().toLowerCase()
   if (email && users.some((user) => user.id !== editingId && user.email.toLowerCase() === email)) {
     errors.email = 'E-Mail sudah terdaftar.'
@@ -70,8 +72,13 @@ function UserForm({ initialUser, users, onSubmit, onClose }) {
             </label>
 
             <label className="admin-field">
-              <span>Kata Sandi *</span>
-              <input type="text" value={draft.password} onChange={setField('password')} />
+              <span>{initialUser ? 'Kata Sandi Baru' : 'Kata Sandi *'}</span>
+              <input
+                type="password"
+                value={draft.password}
+                onChange={setField('password')}
+                placeholder={initialUser ? 'Kosongkan bila tidak diubah' : ''}
+              />
               {errors.password && <em className="admin-field-error">{errors.password}</em>}
             </label>
 

@@ -7,6 +7,7 @@ import Footer from './components/Footer/Footer.jsx'
 import Home from './pages/Home/Home.jsx'
 import Login from './pages/Login/Login.jsx'
 import Register from './pages/Register/Register.jsx'
+import VerifyEmail from './pages/VerifyEmail/VerifyEmail.jsx'
 import AdminDashboard from './pages/Admin/AdminDashboard.jsx'
 import { fetchCourses } from './store/redux/coursesSlice.js'
 import { footerContent, navbarContent } from './utils/siteContent.js'
@@ -99,6 +100,7 @@ function App() {
           element={<Login onAdminLogin={handleAdminLogin} onUserLogin={handleUserLogin} />}
         />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route
           path="/admin"
           element={

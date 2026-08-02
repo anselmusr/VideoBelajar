@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { addUser, getUsers } from '../../services/api/users.js'
+import { registerUser } from '../../services/api/auth.js'
 import { FcGoogle } from 'react-icons/fc'
 import { FiChevronDown, FiEye, FiEyeOff } from 'react-icons/fi'
 import './Register.css'
@@ -124,21 +124,21 @@ function Register() {
     setIsSubmitting(true)
     setSubmitError('')
     try {
-      const users = await getUsers()
-      const email = formData.email.trim().toLowerCase()
-      if (users.some((user) => user.email?.toLowerCase() === email)) {
-        setErrors({ email: 'E-Mail sudah terdaftar.' })
-        return
-      }
-      await addUser({
-        fullName: formData.fullName.trim(),
+      // Email yang sudah terdaftar tapi belum diverifikasi dijawab 200 oleh
+      // server: tautan verifikasinya dikirim ulang, jadi ini bukan error.
+      await registerUser({
+        fullname: formData.fullName.trim(),
         email: formData.email.trim(),
         phone: `${selectedCountry.dialCode}${formData.phoneNumber.replace(/\D/g, '')}`,
         password: formData.password,
       })
       navigate('/login', { state: { registered: true } })
     } catch (err) {
-      setSubmitError(err.message)
+      if (err.status === 409) {
+        setErrors({ email: 'E-Mail sudah terdaftar.' })
+      } else {
+        setSubmitError(err.message)
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -227,6 +227,7 @@ function Register() {
                 className={`register-input ${errors.phoneNumber ? 'input-error' : ''}`}
                 id="register-phone-number"
                 type="tel"
+                maxLength={15}
                 value={formData.phoneNumber}
                 onChange={handleInputChange('phoneNumber')}
               />
