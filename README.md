@@ -154,7 +154,17 @@ live ikut mati.
 
 	Jangan set `PORT` — Render mengisinya sendiri. Server sengaja menolak start
 	bila `NODE_ENV=production` tapi `SMTP_HOST` kosong.
-4. **Frontend**: set `VITE_API_BASE_URL` di dashboard Vercel ke URL Render
+4. **Cek backend sebelum menyentuh frontend** (tanpa perlu akses database):
+
+	```bash
+	node server/smoke-deploy.js https://videobelajar-api.onrender.com email-aslimu@gmail.com
+	```
+
+	Skrip ini memastikan service hidup, database tersambung, middleware JWT
+	aktif, dan login benar-benar terkunci sampai email diverifikasi — lalu
+	mengirim tautan verifikasi sungguhan ke alamat yang kamu isi supaya bisa
+	dibuktikan bahwa SMTP produksi memang mengirim.
+5. **Frontend**: set `VITE_API_BASE_URL` di dashboard Vercel ke URL Render
 	(mis. `https://videobelajar-api.onrender.com`), lalu push `main`.
 
 Catatan free tier: service Render tidur setelah ~15 menit menganggur sehingga
