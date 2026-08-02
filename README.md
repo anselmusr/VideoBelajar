@@ -168,7 +168,7 @@ live ikut mati.
 	| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | dari dashboard database |
 	| `DB_SSL_CA` | isi lengkap `ca.pem` (boleh multiline) |
 	| `JWT_SECRET` | hex acak, mis. hasil `openssl rand -hex 32` |
-	| `APP_URL` | origin **frontend**, mis. `https://videobelajar.anselmusr.com` |
+	| `APP_URL` | origin **frontend**, mis. `https://video-belajar.anselmusr.com` |
 	| `BREVO_API_KEY` | API key Brevo (tab *API Keys*, bukan SMTP key) |
 	| `MAIL_FROM` | alamat pengirim yang sudah diverifikasi |
 

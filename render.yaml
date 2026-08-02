@@ -18,7 +18,7 @@ services:
         value: production
       # origin FRONTEND — tautan verifikasi di email mengarah ke halaman /verify-email
       - key: APP_URL
-        value: https://videobelajar.anselmusr.com
+        value: https://video-belajar.anselmusr.com
       # Kredensial MySQL Aiven (dashboard Aiven -> Connection information)
       - key: DB_HOST
         sync: false
