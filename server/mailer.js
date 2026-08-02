@@ -60,7 +60,9 @@ export async function sendVerificationEmail({ to, fullname, token }) {
   const safeName = escapeHtml(fullname)
   const safeLink = escapeHtml(link)
   const info = await transporter.sendMail({
-    from: '"EduCourse VideoBelajar" <no-reply@videobelajar.local>',
+    // Penyedia SMTP sungguhan (Brevo dsb) menolak pengirim yang belum
+    // diverifikasi — isi MAIL_FROM dengan alamat yang sudah kamu verifikasi.
+    from: process.env.MAIL_FROM ?? '"EduCourse VideoBelajar" <no-reply@videobelajar.local>',
     to,
     subject: 'Verifikasi Email EduCourse',
     text: `Halo ${fullname},\n\nVerifikasi akunmu lewat tautan berikut:\n${link}\n`,

@@ -124,6 +124,43 @@ Catatan desain:
 	dikosongkan untuk mempertahankan password lama (hash-nya tidak pernah
 	dikirim ke browser).
 
+## Deploy (frontend Vercel + backend Render + MySQL cloud)
+
+Frontend statis di Vercel tidak bisa menjalankan Express/MySQL, jadi backend
+`server/` di-deploy terpisah. Urutannya penting: **backend dulu**, baru arahkan
+frontend ke sana — kalau `main` di-push sebelum backend hidup, login di situs
+live ikut mati.
+
+1. **Database** (mis. [Aiven](https://aiven.io) free plan, MySQL). Buat service,
+	catat host/port/user/password/nama database, dan unduh `ca.pem`. Jalankan
+	`docs/database/schema.mysql.sql` lalu
+	`docs/database/migration-backend-advance-1-users-auth.sql` ke database itu.
+2. **SMTP** (mis. [Brevo](https://brevo.com) 300 email/hari). Verifikasi satu
+	alamat pengirim, lalu buat SMTP key — nilainya jadi `SMTP_PASS` (bukan
+	password akun).
+3. **Backend** di [Render](https://render.com), tipe Web Service dari repo ini:
+	- Build command `npm install`, start command `npm run server`
+	- Environment variables:
+
+	| Variable | Isi |
+	| --- | --- |
+	| `NODE_ENV` | `production` |
+	| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | dari dashboard database |
+	| `DB_SSL_CA` | isi lengkap `ca.pem` (boleh multiline) |
+	| `JWT_SECRET` | hex acak, mis. hasil `openssl rand -hex 32` |
+	| `APP_URL` | origin **frontend**, mis. `https://videobelajar.vercel.app` |
+	| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | dari penyedia SMTP |
+	| `MAIL_FROM` | alamat pengirim yang sudah diverifikasi |
+
+	Jangan set `PORT` — Render mengisinya sendiri. Server sengaja menolak start
+	bila `NODE_ENV=production` tapi `SMTP_HOST` kosong.
+4. **Frontend**: set `VITE_API_BASE_URL` di dashboard Vercel ke URL Render
+	(mis. `https://videobelajar-api.onrender.com`), lalu push `main`.
+
+Catatan free tier: service Render tidur setelah ~15 menit menganggur sehingga
+request pertama bisa lambat, dan folder `uploads/` bersifat sementara (isinya
+hilang tiap restart/deploy) — cukup untuk demo, bukan penyimpanan permanen.
+
 ## Fitur yang Sudah Tersedia
 
 - Landing page responsif dengan section Hero, Features (kategori course), dan Newsletter CTA.
