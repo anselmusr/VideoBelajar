@@ -132,9 +132,21 @@ frontend ke sana — kalau `main` di-push sebelum backend hidup, login di situs
 live ikut mati.
 
 1. **Database** (mis. [Aiven](https://aiven.io) free plan, MySQL). Buat service,
-	catat host/port/user/password/nama database, dan unduh `ca.pem`. Jalankan
-	`docs/database/schema.mysql.sql` lalu
-	`docs/database/migration-backend-advance-1-users-auth.sql` ke database itu.
+	catat host/port/user/password, dan unduh `ca.pem`. Tunggu sampai statusnya
+	*Running* — sebelum itu hostname-nya belum ada di DNS. Lalu jalankan
+	**`docs/database/schema.mysql.sql` saja**:
+
+	```bash
+	mysql -h HOST -P PORT -u avnadmin -p --ssl-mode=VERIFY_CA --ssl-ca=ca.pem defaultdb < docs/database/schema.mysql.sql
+	```
+
+	File `migration-backend-advance-1-users-auth.sql` **tidak** dipakai di
+	database baru (akan gagal "Duplicate column name") — itu khusus untuk
+	menaikkan database lama dari misi Backend Intermediate yang belum punya
+	kolom `username`/`verification_token`/`email_verified_at`.
+
+	Tabel `courses` sengaja dibiarkan kosong: frontend mengisinya sendiri saat
+	pertama kali dibuka.
 2. **SMTP** (mis. [Brevo](https://brevo.com) 300 email/hari). Verifikasi satu
 	alamat pengirim, lalu buat SMTP key — nilainya jadi `SMTP_PASS` (bukan
 	password akun).
