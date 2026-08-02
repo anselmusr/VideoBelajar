@@ -83,8 +83,13 @@ assert(list.status === 200 && Array.isArray(list.data), 'GET /course dengan toke
 // --- Langkah 5: query params filter, sort, search ---
 const filter = (await req('GET', '/course?category=business', { token })).data
 assert(filter.length > 0 && filter.every((c) => c.category === 'business'), 'filter ?category=business')
-const search = (await req('GET', '/course?search=fullstack', { token })).data
-assert(search.length > 0 && search.every((c) => /fullstack/i.test(c.title + c.description)), 'search ?search=fullstack')
+// Kata kunci diambil dari judul kelas yang benar-benar ada, supaya tes ini
+// jalan di database mana pun (lokal maupun cloud yang baru diisi seed).
+assert(list.data.length > 0, 'ada kelas untuk diuji pencariannya')
+const kata = list.data[0].title.split(' ').find((w) => w.length > 3) ?? list.data[0].title
+const cocok = new RegExp(kata.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
+const search = (await req('GET', `/course?search=${encodeURIComponent(kata)}`, { token })).data
+assert(search.length > 0 && search.every((c) => cocok.test(c.title + c.description)), `search ?search=${kata}`)
 const sorted = (await req('GET', '/course?sortBy=price:desc', { token })).data
 assert(sorted.every((c, i) => i === 0 || sorted[i - 1].price >= c.price), 'sort ?sortBy=price:desc menurun')
 // sortBy tak dikenal / key prototype tidak boleh 500 (fallback ke default)

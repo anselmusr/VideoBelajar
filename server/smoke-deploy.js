@@ -67,4 +67,7 @@ Langkah manual terakhir (membuktikan SMTP produksi sungguhan):
   1. Buka inbox ${email}${emailAsli ? '' : ' — alamat contoh, ulangi dengan email aslimu untuk cek ini'}
   2. Klik tautan verifikasinya, halaman web harus menampilkan "Email berhasil diverifikasi"
   3. Login dengan password: ${akun.password}
+
+Catatan: skrip ini hanya bicara lewat HTTP sehingga tidak bisa menghapus akun
+ujinya sendiri. Hapus baris "${email}" dari tabel users kalau tidak diperlukan.
 `)
