@@ -150,9 +150,12 @@ live ikut mati.
 2. **SMTP** (mis. [Brevo](https://brevo.com) 300 email/hari). Verifikasi satu
 	alamat pengirim, lalu buat SMTP key — nilainya jadi `SMTP_PASS` (bukan
 	password akun).
-3. **Backend** di [Render](https://render.com), tipe Web Service dari repo ini:
-	- Build command `npm install`, start command `npm run server`
-	- Environment variables:
+3. **Backend** di [Render](https://render.com). Cara termudah: **New → Blueprint**
+	lalu pilih repo ini — Render membaca `render.yaml` di root dan mengisi
+	sendiri region, build/start command, health check, serta nama semua env
+	var; kamu tinggal menempel nilai rahasianya. Kalau mau manual (New → Web
+	Service): build command `npm install`, start command `npm run server`.
+	Environment variables:
 
 	| Variable | Isi |
 	| --- | --- |
@@ -160,7 +163,7 @@ live ikut mati.
 	| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | dari dashboard database |
 	| `DB_SSL_CA` | isi lengkap `ca.pem` (boleh multiline) |
 	| `JWT_SECRET` | hex acak, mis. hasil `openssl rand -hex 32` |
-	| `APP_URL` | origin **frontend**, mis. `https://videobelajar.vercel.app` |
+	| `APP_URL` | origin **frontend**, mis. `https://videobelajar.anselmusr.com` |
 	| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | dari penyedia SMTP |
 	| `MAIL_FROM` | alamat pengirim yang sudah diverifikasi |
 

@@ -1,0 +1,52 @@
+# Blueprint Render untuk backend Express di server/.
+# Pakai: Render Dashboard -> New -> Blueprint -> pilih repo ini -> pilih branch.
+# Nilai ber-"sync: false" tidak disimpan di repo; Render menanyakannya sekali
+# saat blueprint dibuat (kredensial Aiven & Brevo).
+services:
+  - type: web
+    name: videobelajar-api
+    runtime: node
+    # region Asia: setiap request memanggil MySQL, jadi API sebaiknya dekat database
+    region: singapore
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run server
+    # GET / mengembalikan daftar endpoint, cocok dipakai health check
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # origin FRONTEND — tautan verifikasi di email mengarah ke halaman /verify-email
+      - key: APP_URL
+        value: https://videobelajar.anselmusr.com
+      # Kredensial MySQL Aiven (dashboard Aiven -> Connection information)
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      # isi lengkap ca.pem; Aiven mewajibkan TLS
+      - key: DB_SSL_CA
+        sync: false
+      # dibuatkan Render sekali, tidak perlu dikarang sendiri
+      - key: JWT_SECRET
+        generateValue: true
+      # SMTP Brevo — tanpa ini server sengaja menolak start di produksi
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_SECURE
+        value: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      # alamat pengirim yang sudah diverifikasi di Brevo
+      - key: MAIL_FROM
+        sync: false
