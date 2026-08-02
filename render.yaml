@@ -36,16 +36,10 @@ services:
       # dibuatkan Render sekali, tidak perlu dikarang sendiri
       - key: JWT_SECRET
         generateValue: true
-      # SMTP Brevo — tanpa ini server sengaja menolak start di produksi
-      - key: SMTP_HOST
-        value: smtp-relay.brevo.com
-      - key: SMTP_PORT
-        value: 587
-      - key: SMTP_SECURE
-        value: false
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
+      # Free tier Render memblokir port SMTP (25/465/587) sejak September 2025,
+      # jadi email dikirim lewat API HTTPS Brevo. Ambil di Brevo -> SMTP & API
+      # -> tab "API Keys" (BUKAN SMTP key). Tanpa ini server menolak start.
+      - key: BREVO_API_KEY
         sync: false
       # alamat pengirim yang sudah diverifikasi di Brevo
       - key: MAIL_FROM

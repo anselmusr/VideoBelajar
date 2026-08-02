@@ -147,9 +147,14 @@ live ikut mati.
 
 	Tabel `courses` sengaja dibiarkan kosong: frontend mengisinya sendiri saat
 	pertama kali dibuka.
-2. **SMTP** (mis. [Brevo](https://brevo.com) 300 email/hari). Verifikasi satu
-	alamat pengirim, lalu buat SMTP key — nilainya jadi `SMTP_PASS` (bukan
-	password akun).
+2. **Email** (mis. [Brevo](https://brevo.com) 300 email/hari). Verifikasi satu
+	alamat pengirim, lalu buat **API key** di *SMTP & API → tab API Keys* —
+	nilainya jadi `BREVO_API_KEY`.
+
+	> Pakai API HTTPS, bukan SMTP. Free tier Render **memblokir port SMTP**
+	> (25/465/587) sejak September 2025, jadi `nodemailer` tidak akan pernah
+	> tersambung di sana — gejalanya register tetap 201 tapi email tak pernah
+	> sampai. `SMTP_*` tetap didukung untuk dev atau hosting lain.
 3. **Backend** di [Render](https://render.com). Cara termudah: **New → Blueprint**
 	lalu pilih repo ini — Render membaca `render.yaml` di root dan mengisi
 	sendiri region, build/start command, health check, serta nama semua env
@@ -164,11 +169,13 @@ live ikut mati.
 	| `DB_SSL_CA` | isi lengkap `ca.pem` (boleh multiline) |
 	| `JWT_SECRET` | hex acak, mis. hasil `openssl rand -hex 32` |
 	| `APP_URL` | origin **frontend**, mis. `https://videobelajar.anselmusr.com` |
-	| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | dari penyedia SMTP |
+	| `BREVO_API_KEY` | API key Brevo (tab *API Keys*, bukan SMTP key) |
 	| `MAIL_FROM` | alamat pengirim yang sudah diverifikasi |
 
 	Jangan set `PORT` — Render mengisinya sendiri. Server sengaja menolak start
-	bila `NODE_ENV=production` tapi `SMTP_HOST` kosong.
+	bila `NODE_ENV=production` tapi `BREVO_API_KEY` dan `SMTP_HOST` sama-sama
+	kosong, supaya tidak ada akun yang mendaftar lalu terkunci karena email
+	verifikasinya tak pernah terkirim.
 4. **Cek backend sebelum menyentuh frontend** (tanpa perlu akses database):
 
 	```bash
